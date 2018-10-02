@@ -34,28 +34,23 @@ ifydat. It is also recommended that you have a separate virtual environment (if
 you haven't made one already).
 
 
-Assuming your current working directory is where you want to put this repo, 
+Assuming your current working directory is where you want to put this repo,:: 
 
-
-.. code-block:: console
    $ git clone https://github.com/renzmann/ifydat
 
 
 Next, install the requirements
 
-(Linux / macOS)
+(Linux / macOS)::
 
-.. code-block:: console
    $ while read requirement; do conda install --yes $requirement; done < requirements.txt
 
-(Windows)
+(Windows)::
 
-.. code-block:: bat
    > FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"
 
-Finally, install fyda
+Finally, install fyda::
 
-.. code-block:: console
    $ pip install .
 
 
