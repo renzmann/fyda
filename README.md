@@ -11,6 +11,12 @@ the available data in the ``input`` folder, and use fyda's built-in api to
 load it, transform it, and model it. 
 
 
+## User guide
+
+You should [Read The Docs](https://ifydat.readthedocs.io/en/latest/) for all
+the goodies!
+
+
 ## Installation
 
 It is recommended that you use the Anaconda distribution of Python 3 with
@@ -39,17 +45,10 @@ $ while read requirement; do conda install --yes $requirement; done < requiremen
 > FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"
 ```
 
-Finally, install ifydat
+Finally, install fyda
 
 ```sh
-pip install -e .
+pip install .
 ```
 
-It is important to include the ``-e`` (editable) option, so that changes to
-``conf.yml`` can be read and applied.
 
-
-## User guide
-
-You should [Read The Docs](https://ifydat.readthedocs.io/en/latest/) for all
-the goodies!

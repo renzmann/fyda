@@ -1,3 +1,8 @@
+from .configurate import (
+    ProjectConfig,
+    add_data,
+)
+
 from .util import (
     load_data,
     open_conf,

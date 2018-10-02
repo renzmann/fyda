@@ -2,7 +2,6 @@
 Basic data handling library.
 """
 import os
-import yaml
 import pandas as pd
 
 from configparser import ConfigParser
