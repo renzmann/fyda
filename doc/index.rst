@@ -25,6 +25,7 @@ Here's how it works:
 
 .. contents:: Table of Contents
 
+.. highlight:: none
 
 Installation
 ------------
@@ -35,30 +36,27 @@ you haven't made one already).
 
 Assuming your current working directory is where you want to put this repo, 
 
-```
-git clone https://github.com/renzmann/ifydat
-```
+
+::
+   $ git clone https://github.com/renzmann/ifydat
 
 
 Next, install the requirements
 
 (Linux / macOS)
 
-```
-$ while read requirement; do conda install --yes $requirement; done < requirements.txt
-```
+::
+   $ while read requirement; do conda install --yes $requirement; done < requirements.txt
 
 (Windows)
 
-```
-> FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"
-```
+::
+   > FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"
 
 Finally, install fyda
 
-```
-pip install .
-```
+::
+   $ pip install .
 
 
 
