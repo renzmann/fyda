@@ -4,6 +4,7 @@ Basic data handling library.
 import os
 import pandas as pd
 
+from .configurate import ProjectConfig
 from configparser import ConfigParser
 
 
@@ -12,16 +13,6 @@ def _attribute_remover(att_type, data):
     rm_atts = open_conf()[att_type]
     data_ = data_.drop(rm_atts, axis='columns')
     return data_
-
-
-# TODO switch to ini configuration
-def _open_conf():
-    conf_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__),
-                     'conf.yml')
-        )
-    config = yaml.load(open(conf_path, 'r'))
-    return config
 
 
 def _data_reader(filepath):
@@ -43,8 +34,13 @@ def _data_reader(filepath):
 
 def _pave_inputs(input_path, *args):
     for arg in args:
+        config = ProjectConfig()
         name, ext = os.path.splitext(arg)
         
+        if name in config['data'].keys()
+            
+            arg_file = os.path.join(input_path, arg)
+            yield arg_file
         if ext == '':
             shortcuts = _open_conf()['shortcuts']
             arg = shortcuts[name]
@@ -54,11 +50,12 @@ def _pave_inputs(input_path, *args):
 
 
 def _load_data(*data_filenames):
+    config = ProjectConfig()
     if not data_filenames:
-        data_filenames = _open_conf()['data']
+        data_filenames = config['data'].values()
 
-    filenames = _open_conf()['directories']
-    input_path = os.path.join(os.path.expanduser(filenames['input_folder']))
+    directories = _open_conf()['directories']
+    input_path = os.path.join(os.path.expanduser(directories['input_folder']))
     all_inputs = list(_pave_inputs(input_path, *data_filenames))
     data_list = []
 
