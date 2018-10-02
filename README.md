@@ -13,7 +13,7 @@ load it, transform it, and model it.
 
 ## User guide
 
-You should [Read The Docs](https://ifydat.readthedocs.io/en/latest/) for all
+You should [Read The Docs](https://fyda.readthedocs.io/en/latest/) for all
 the goodies!
 
 

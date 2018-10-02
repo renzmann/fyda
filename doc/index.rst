@@ -58,6 +58,8 @@ Finally, install fyda::
 User Guide
 ----------
 
+See the :ref:`quickstart` to quickly get started using fyda.
+
 Working with configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -65,7 +67,10 @@ Working with configuration
    :toctree: generated/
 
    ProjectConfig
+   add_data
+   remove_data
    add_directory
+   remove_directory
    set_data_root
 
 
@@ -82,6 +87,11 @@ Loading configured data
 
 Under Construction
 ------------------
+
+Quickstart guide
+~~~~~~~~~~~~~~~~
+
+   - :ref:`quickstart`
 
 Data shaping
 ~~~~~~~~~~~~

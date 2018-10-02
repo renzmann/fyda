@@ -4,6 +4,7 @@ Basic data handling library.
 import os
 import pandas as pd
 
+from .errorhandling import ConfigurationError
 from .configurate import ProjectConfig
 from configparser import ConfigParser
 
@@ -29,7 +30,7 @@ def _data_reader(filepath):
     if extension in ['.sas7bdat', '.xport']:
         return pd.read_sas
 
-    raise ValueError('Data reader not configured for file %s' % filename)
+    raise ConfigurationError('Data reader not configured for file "%s"' % filename)
 
 
 def _pave_inputs(input_path, *args):
@@ -43,9 +44,10 @@ def _pave_inputs(input_path, *args):
         elif arg in config['data'].values():
             arg_file = os.path.join(input_path, arg)
         else:
-            raise ValueError('data "{}" has not been '.format(arg),
-                             'added to the interface. See documentation ',
-                             'for how to add data to fyda.')
+            raise ConfigurationError('data "{}" has not been '.format(arg),
+                                     'added to the interface. ',
+                                     'See documentation for how to add data ',
+                                     'to fyda.')
         yield arg_file
 
 
