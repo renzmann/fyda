@@ -1,11 +1,10 @@
 from .configurate import (
     ProjectConfig,
     add_data,
+    add_directory,
+    set_data_root
 )
 
 from .util import (
     load_data,
-    open_conf,
-    remove_bad_atts,
-    remove_id_atts
 )

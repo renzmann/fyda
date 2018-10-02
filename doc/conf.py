@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ifydat'
+project = 'fyda'
 copyright = '2018, Robert A. Enzmann'
 author = 'Robert A. Enzmann'
 
@@ -106,7 +106,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ifydatdoc'
+htmlhelp_basename = 'fydadoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -133,7 +133,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ifydat.tex', 'ifydat Documentation',
+    (master_doc, 'fyda.tex', 'fyda Documentation',
      'Robert A. Enzmann', 'manual'),
 ]
 
@@ -143,7 +143,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ifydat', 'ifydat Documentation',
+    (master_doc, 'fyda', 'fyda Documentation',
      [author], 1)
 ]
 
@@ -154,8 +154,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ifydat', 'ifydat Documentation',
-     author, 'ifydat', 'One line description of project.',
+    (master_doc, 'fyda', 'fyda Documentation',
+     author, 'fyda', 'One line description of project.',
      'Miscellaneous'),
 ]
 

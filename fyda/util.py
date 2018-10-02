@@ -37,56 +37,26 @@ def _pave_inputs(input_path, *args):
         config = ProjectConfig()
         name, ext = os.path.splitext(arg)
         
-        if name in config['data'].keys()
-            
+        if name in config['data'].keys():
+            filename = config['data'][name]
+            arg_file = os.path.join(input_path, filename)
+        elif arg in config['data'].values():
             arg_file = os.path.join(input_path, arg)
-            yield arg_file
-        if ext == '':
-            shortcuts = _open_conf()['shortcuts']
-            arg = shortcuts[name]
-
-        arg_file = os.path.join(input_path, arg)
+        else:
+            raise ValueError('data "{}" has not been '.format(arg),
+                             'added to the interface. See documentation ',
+                             'for how to add data to fyda.')
         yield arg_file
 
 
-def _load_data(*data_filenames):
-    config = ProjectConfig()
-    if not data_filenames:
-        data_filenames = config['data'].values()
-
-    directories = _open_conf()['directories']
-    input_path = os.path.join(os.path.expanduser(directories['input_folder']))
-    all_inputs = list(_pave_inputs(input_path, *data_filenames))
-    data_list = []
-
-    for enum in enumerate(all_inputs):
-        count = enum[0]
-        file_path = enum[1]
-        filename = data_filenames[count]
-        reader = _data_reader(filename)
-
-        if reader is pd.read_excel:
-            xl_kwargs = _open_conf()['excel_args'][filename]
-            table = reader(file_path, **xl_kwargs)
-        else:
-            table = reader(file_path)
-
-        data_list.append(table)
-
-    if len(data_list) == 1:
-        return data_list[0]
-
-    return tuple(data_list)
-
-
-def load_data(*args):
+def load_data(*data_filenames):
     """
     Load specified data.
 
     Parameters
     ----------
     args : optional, default None
-        By default this will be the list of names given in conf.yml under the
+        By default this will be the list of names given in conf.ini under the
         ``data_types`` keyword.
 
     Returns
@@ -112,8 +82,8 @@ def load_data(*args):
     --------
     fyda is flexible with how it handles ``load_data`` calls. If no
     arguments are passed, it will by default return everything specified
-    under ``data`` in ``conf.yml``. The data listed there should be found
-    in the ``input`` folder also given in ``conf.yml``.
+    under ``data`` in ``config.ini``. The data listed there should be found
+    in the ``input`` folder also given in ``config.ini``.
 
     >>> import fyda
     >>> data = fyda.load_data()
@@ -150,26 +120,39 @@ def load_data(*args):
     4                5.0               3.6                1.4               0.2      setosa
 
     """
-    return _load_data(*args)
 
+    config = ProjectConfig()
+    if not data_filenames:
+        data_filenames = config['data'].values()
 
-def open_conf():
-    """
-    Open the config file as a dictionary.
+    directories = config['directories']
+    input_path = os.path.join(os.path.expanduser(directories['input_folder']))
+    all_inputs = list(_pave_inputs(input_path, *data_filenames))
+    data_list = []
 
-    Returns
-    -------
-    config : dict
-        Configuration file.
-    """
-    return _open_conf()
+    for enum in enumerate(all_inputs):
+        count = enum[0]
+        file_path = enum[1]
+        filename = data_filenames[count]
+        reader = _data_reader(filename)
 
+        if reader is pd.read_excel:
+            if filename in config.sections():
+                shortcut = filename
+            elif filename in config['data'].values():
+                shortcut, _ = os.path.splitext(filename)
+            else:
+                raise ValueError('Excel file "{}" not '.format(filename),
+                                 'configured! See documentation on how to ',
+                                 'configure excel file for fyda.')
+            xl_kwargs = dict(config.items(shortcut))
+            table = reader(file_path, **xl_kwargs)
+        else:
+            table = reader(file_path)
 
-def remove_bad_atts(attribute_data):
-    """Deletes attributes listed under ``bad_atts`` in conf.yml"""
-    return _attribute_remover('bad_atts', attribute_data)
+        data_list.append(table)
 
+    if len(data_list) == 1:
+        return data_list[0]
 
-def remove_id_atts(attribute_data):
-    """Deletes attributes listed under ``id_cols`` in conf.yml"""
-    return _attribute_remover('id_cols', attribute_data)
+    return tuple(data_list)
