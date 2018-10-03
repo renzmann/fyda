@@ -4,7 +4,8 @@ from .configurate import (
     remove_data,
     add_directory,
     remove_directory,
-    set_data_root
+    set_data_root,
+    configure_excel,
 )
 
 from .util import (

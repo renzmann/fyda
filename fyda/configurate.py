@@ -13,22 +13,13 @@ CONF_PATH = os.path.abspath(
 )
 
 ALLOW_OVERWRITE = False
-
-# TODO add a setting that allows for quick adding, by default we force users
-# to remove an existing option before they can add one with the same name.
+EXCEL_EXTENSIONS = ['.xlsx']
 
 class ProjectConfig(ConfigParser):
     """Configuration manager."""
     def __init__(self):
         super().__init__()
         self.read(CONF_PATH)
-
-
-def _config_add_or_change(section, key, value):
-    config = ProjectConfig()
-    config[section][key] = value
-    with open(CONF_PATH, 'w') as configfile:
-        config.write(configfile)
 
 
 def _config_remove(section, option):
@@ -61,7 +52,17 @@ def _config_exists(section, option=None):
     return option in config.options(section)
 
 
-# TODO add checks for key-pair existence
+def _config_add_or_change(section, key, value):
+    config = ProjectConfig()
+
+    if not _config_exists(section):
+        config.add_section(section)
+
+    config[section][key] = value
+    with open(CONF_PATH, 'w') as configfile:
+        config.write(configfile)
+
+
 def add_data(shortcut, filename):
     """
     Add a data file to the fyda configuration.
@@ -85,6 +86,11 @@ def add_data(shortcut, filename):
         raise OptionExistsError('data', shortcut)
     _config_add_or_change('data', shortcut, filename)
 
+    _, extension = os.path.splitext(filename)
+    if extension in EXCEL_EXTENSIONS:
+        configure_excel(shortcut)
+
+
 
 def remove_data(shortcut):
     """
@@ -101,6 +107,13 @@ def remove_data(shortcut):
     :meth:`add_directory`
     :meth:`remove_directory`
     """
+    config = ProjectConfig()
+    filename = config['data'][shortcut]
+    _, ext = os.path.splitext(filename)
+
+    if ext in EXCEL_EXTENSIONS:
+        config.remove_section(shortcut)
+
     _config_remove('data', shortcut)
 
 

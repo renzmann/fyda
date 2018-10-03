@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='ifydat',
+setup(name='fyda',
       version='0.1',
       description='General data interface for Python 3',
       url='http://github.com/renzmann/ifydat',

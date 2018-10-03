@@ -3,23 +3,17 @@ Basic data handling library.
 """
 import os
 import pandas as pd
-
-from .errorhandling import ConfigurationError
-from .configurate import ProjectConfig
-from configparser import ConfigParser
-
-
-def _attribute_remover(att_type, data):
-    data_ = data.copy()
-    rm_atts = open_conf()[att_type]
-    data_ = data_.drop(rm_atts, axis='columns')
-    return data_
+from .errorhandling import ConfigurationError, ReaderError, ExcelConfigError
+from .configurate import ProjectConfig, EXCEL_EXTENSIONS
 
 
 def _data_reader(filepath):
     filename, extension = os.path.splitext(filepath)
 
-    if extension == '.xlsx':
+    if extension == '':
+        config = ProjectConfig()
+        _, extension = os.path.splitext(config['data'][filename])
+    if extension in EXCEL_EXTENSIONS:
         return pd.read_excel
     if extension == '.csv':
         return pd.read_csv
@@ -30,24 +24,21 @@ def _data_reader(filepath):
     if extension in ['.sas7bdat', '.xport']:
         return pd.read_sas
 
-    raise ConfigurationError('Data reader not configured for file "%s"' % filename)
+    raise ReaderError()
 
 
 def _pave_inputs(input_path, *args):
     for arg in args:
         config = ProjectConfig()
-        name, ext = os.path.splitext(arg)
-        
+        name, _ = os.path.splitext(arg)
+
         if name in config['data'].keys():
             filename = config['data'][name]
             arg_file = os.path.join(input_path, filename)
         elif arg in config['data'].values():
             arg_file = os.path.join(input_path, arg)
         else:
-            raise ConfigurationError('data "{}" has not been '.format(arg),
-                                     'added to the interface. ',
-                                     'See documentation for how to add data ',
-                                     'to fyda.')
+            raise ConfigurationError(arg)
         yield arg_file
 
 
@@ -72,7 +63,7 @@ def load_data(*data_filenames):
     .. note::
 
        **Supported file extensions**
-          
+
           - Excel: .xlsx
           - Flat files: .csv
           - Pandas pickle: .pickle, .pkl
@@ -136,6 +127,9 @@ def load_data(*data_filenames):
         count = enum[0]
         file_path = enum[1]
         filename = data_filenames[count]
+
+        # Elements of data_filenames may or may not have file extensions, so
+        # we have the _data_reader call take care of parsing through them.
         reader = _data_reader(filename)
 
         if reader is pd.read_excel:
@@ -144,9 +138,7 @@ def load_data(*data_filenames):
             elif filename in config['data'].values():
                 shortcut, _ = os.path.splitext(filename)
             else:
-                raise ValueError('Excel file "{}" not '.format(filename),
-                                 'configured! See documentation on how to ',
-                                 'configure excel file for fyda.')
+                raise ExcelConfigError(filename)
             xl_kwargs = dict(config.items(shortcut))
             table = reader(file_path, **xl_kwargs)
         else:

@@ -24,18 +24,18 @@ automatically on a regular basis? Now it would be unreasonable to rename the
 file every time. A simpler solution would be to use fyda's data configuration
 to read your data automatically::
 
-   >>>import fyda
-   >>>fyda.set_data_root('~/myproject/input')
-   >>>fyda.add_data('example', 'example.csv')
-   >>>fyda.add_data('longname', 'some other data_with_A long NAME.xlsx')
-   >>>quit()
+   >>> import fyda
+   >>> fyda.set_data_root('~/myproject/input')
+   >>> fyda.add_data('example', 'example.csv')
+   >>> fyda.add_data('longname', 'some other data_with_A long NAME.xlsx')
+   >>> quit()
 
 Now fyda is ready to load up your data any time you import it into your project
 sessions. It is **completely persistent**. Notice how we quit python above. If
 we reboot python in the same environment, we can still load our data::
 
-   >>>import fyda
-   >>>example_data = fyda.load_data('example')
+   >>> import fyda
+   >>> example_data = fyda.load_data('example')
 
 The :meth:`fyda.load_data` method is a flexible, smart data reader. It will
 parse the filenames it was given when the data was added to figure out which
