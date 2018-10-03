@@ -19,8 +19,8 @@ Here's how it works:
    * Your code becomes 1000x smaller and more readable.
 
 .. warning::
-   This project is still under construction, and should not be considered
-   stable. See the :ref:`under-construction` section for what is to come.
+   This project is still under construction.
+   See the :ref:`under-construction` section for what is to come.
 
 
 .. contents:: Table of Contents
