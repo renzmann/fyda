@@ -9,5 +9,7 @@ from .configurate import remove_directory
 from .configurate import set_data_root
 from .configurate import remove_options
 from .configurate import add_options
+from .configurate import sections
+from .configurate import remove_section
 from .util import load_data
 from .util import summary

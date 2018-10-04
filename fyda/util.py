@@ -93,6 +93,9 @@ def load_data(*data_filenames, **kwargs):
     in the ``input`` folder also given in ``config.ini``.
 
     >>> import fyda
+    >>> fyda.summary('data')
+    [data]
+    iris=iris.csv
     >>> data = fyda.load_data()
     >>> data.head()
        sepal length (cm)  sepal width (cm)  petal length (cm)  petal width (cm)  class_name
@@ -106,25 +109,17 @@ def load_data(*data_filenames, **kwargs):
     You can also specify the dataset by name.
 
     >>> data = fyda.load_data('iris.csv')
-    >>> data.head()
-       sepal length (cm)  sepal width (cm)  petal length (cm)  petal width (cm)  class_name
-    0                5.1               3.5                1.4               0.2      setosa
-    1                4.9               3.0                1.4               0.2      setosa
-    2                4.7               3.2                1.3               0.2      setosa
-    3                4.6               3.1                1.5               0.2      setosa
-    4                5.0               3.6                1.4               0.2      setosa
-
 
     Or, if you assigned a shortcut name, you can use that too.
 
     >>> data = fyda.load_data('iris')
-    >>> data.head()
+
+    You can also pass additional keyword arguments to the data reader.
+
+    >>> fyda.load_data('iris', nrows=2)
        sepal length (cm)  sepal width (cm)  petal length (cm)  petal width (cm)  class_name
     0                5.1               3.5                1.4               0.2      setosa
     1                4.9               3.0                1.4               0.2      setosa
-    2                4.7               3.2                1.3               0.2      setosa
-    3                4.6               3.1                1.5               0.2      setosa
-    4                5.0               3.6                1.4               0.2      setosa
 
     """
 

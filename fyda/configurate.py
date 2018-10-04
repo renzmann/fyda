@@ -23,7 +23,23 @@ def _write_config(config):
 
 
 class ProjectConfig(ConfigParser):
-    """Configuration manager."""
+    """
+    Configuration manager.
+
+    Notes
+    -----
+
+    This class is a wrapper around :class:`configparser.ConfigParser` with the
+    added benefit of automatically reading the configuration file on
+    instantiation. If the configuration file doesn't exist when
+    :class:`ConfigParser` is called, it is created in the environment
+    automatically.
+
+    See also
+    --------
+
+    :class:`configparser.ConfigParser`
+    """
     def __init__(self):
         super().__init__()
 
@@ -51,7 +67,7 @@ def _config_delete_section(section):
     config = ProjectConfig()
     is_removed = config.remove_section(section)
     if is_removed:
-        print(('Section "{}", sucessfully removed.'
+        print(('Section "{}" sucessfully removed.'
               ).format(section))
         _write_config(config)
     else:
@@ -246,7 +262,35 @@ def remove_options(shortcut, *args):
     for arg in args:
         _configure_option(shortcut,
                           key=arg,
-                          mode='remove')
+                          mode='remove_option')
+
+
+def remove_section(*section_names):
+    """
+    Remove a section from the config entirely.
+
+    Parameters
+    ----------
+    section_name : str
+        Name of the section to delete.
+
+    """
+    for section in section_names:
+        _configure_option(section, mode='remove')
+
+
+def sections():
+    """
+    Return the sections in the project config.
+
+    Returns
+    -------
+
+    sections : list
+        Names of section titles.
+    """
+    config = ProjectConfig()
+    return config.sections()
 
 
 def add_data(**kwargs):
