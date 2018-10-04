@@ -1,5 +1,7 @@
 .. _user-guide:
 
+.. currentmodule:: fyda
+
 User Guide
 ----------
 

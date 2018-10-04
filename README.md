@@ -19,11 +19,9 @@ the goodies!
 
 ## Installation
 
-It is recommended that you use the Anaconda distribution of Python 3 with
-fyda. It is also recommended that you have a separate virtual environment (if
-you haven't made one already).
-
-
+Currently the only way to get fyda is by installing it manually from github.
+fyda is developed with the Anaconda distribution virtual environment
+achitecture in mind but you can use whatever venv setup you like.
 Assuming your current working directory is where you want to put this repo, 
 
 ```sh
