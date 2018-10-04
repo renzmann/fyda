@@ -175,9 +175,12 @@ def set_data_root(directory):
     directory : str
         Full filepath to the directory.
 
+
     .. note::
+
        This data root will always be referenced with the shortcut
        ``input_folder``.
+
 
     See Also
     --------

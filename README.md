@@ -20,14 +20,14 @@ the goodies!
 ## Installation
 
 It is recommended that you use the Anaconda distribution of Python 3 with
-ifydat. It is also recommended that you have a separate virtual environment (if
+fyda. It is also recommended that you have a separate virtual environment (if
 you haven't made one already).
 
 
 Assuming your current working directory is where you want to put this repo, 
 
 ```sh
-git clone https://github.com/renzmann/ifydat
+git clone https://github.com/renzmann/fyda
 ```
 
 

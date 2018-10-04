@@ -22,6 +22,10 @@ Here's how it works:
    This project is still under construction.
    See the :ref:`under-construction` section for what is to come.
 
+.. toctree::
+   :maxdepth: 2
+
+   quickstart
 
 .. contents:: Table of Contents
 
