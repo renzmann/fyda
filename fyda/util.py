@@ -2,9 +2,15 @@
 Basic data handling library.
 """
 import os
+import warnings
+import numpy as np
 import pandas as pd
-from .errorhandling import ConfigurationError, ReaderError, ExcelConfigError
-from .configurate import ProjectConfig, EXCEL_EXTENSIONS
+from .errorhandling import ConfigurationError
+from .errorhandling import ReaderError
+from .configurate import ProjectConfig
+from .configurate import EXCEL_EXTENSIONS
+from .configurate import _config_exists
+from .configurate import get_shortcut
 
 
 def _data_reader(filepath):
@@ -23,6 +29,8 @@ def _data_reader(filepath):
         return pd.read_json
     if extension in ['.sas7bdat', '.xport']:
         return pd.read_sas
+    if extension == '.npz':
+        return np.load
 
     raise ReaderError()
 
@@ -42,15 +50,18 @@ def _pave_inputs(input_path, *args):
         yield arg_file
 
 
-def load_data(*data_filenames):
+def load_data(*data_filenames, **kwargs):
     """
     Load specified data.
 
     Parameters
     ----------
-    args : optional, default None
-        By default this will be the list of names given in conf.ini under the
-        ``data_types`` keyword.
+    data_filenames : optional
+        By default this will be the list of names given in configuration under the
+        ``data`` keyword.
+
+    kwargs : optional
+        Additional arguments passed to the data reader.
 
     Returns
     -------
@@ -124,29 +135,44 @@ def load_data(*data_filenames):
     data_list = []
 
     for enum in enumerate(all_inputs):
-        count = enum[0]
-        file_path = enum[1]
-        filename = data_filenames[count]
+        count = enum[0]                  # Elements of data_filenames may or
+        file_path = enum[1]              # may not have file extensions, so we
+        filename = data_filenames[count] # have the _data_reader call take care
+        reader = _data_reader(filename)  # of parsing through them.
 
-        # Elements of data_filenames may or may not have file extensions, so
-        # we have the _data_reader call take care of parsing through them.
-        reader = _data_reader(filename)
-
-        if reader is pd.read_excel:
-            if filename in config.sections():
-                shortcut = filename
-            elif filename in config['data'].values():
-                shortcut, _ = os.path.splitext(filename)
-            else:
-                raise ExcelConfigError(filename)
-            xl_kwargs = dict(config.items(shortcut))
-            table = reader(file_path, **xl_kwargs)
+        if _config_exists(filename):
+            kwargs.update(dict(config[filename]))
         else:
-            table = reader(file_path)
+            try:
+                shortcut = get_shortcut(filename)
+                kwargs.update(dict(config[shortcut]))
+            except KeyError:
+                warnings.warn(('Could not find keyword configurations for "{}"'
+                              ).format(filename))
 
+        table = reader(file_path, **kwargs)
         data_list.append(table)
 
     if len(data_list) == 1:
         return data_list[0]
 
     return tuple(data_list)
+
+
+def summary(*sections):
+    """
+    Print a summary of the configuration for given option.
+
+    Parameters
+    ----------
+    sections : str, optional
+        Sections to print information for. If none given, prints entire
+        summary.
+    """
+    config = ProjectConfig()
+    if sections is None:
+        sections = config.sections()
+    for section in sections:
+        print('\n[{}]'.format(section))
+        for key, value in config[section].items():
+            print('{} = {}'.format(key, value))

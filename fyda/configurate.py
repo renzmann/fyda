@@ -22,12 +22,19 @@ class ProjectConfig(ConfigParser):
         self.read(CONF_PATH)
 
 
+def _write_config(config):
+    """Writes config to .ini file"""
+    with open(CONF_PATH, 'w') as configfile:
+        config.write(configfile)
+
+
 def _config_remove(section, option):
     config = ProjectConfig()
     is_removed = config.remove_option(section, option)
     if is_removed:
         print(('Section "{}", option "{}" sucessfully removed.'
               ).format(section, option))
+        _write_config(config)
     else:
         print('Option not removed! Check that it exists.')
 
@@ -38,6 +45,7 @@ def _config_delete_section(section):
     if is_removed:
         print(('Section "{}", sucessfully removed.'
               ).format(section))
+        _write_config(config)
     else:
         print('Section not removed! Check that it exists.')
 
@@ -58,47 +66,42 @@ def _config_add_or_change(section, key, value):
     if not _config_exists(section):
         config.add_section(section)
 
+    if (key is None) or (value is None):
+        return
+
     config[section][key] = value
-    with open(CONF_PATH, 'w') as configfile:
-        config.write(configfile)
+    _write_config(config)
 
 
-def add_data(shortcut, filename):
+# TODO add a 'summary' function to print out parts of config
+
+
+def get_shortcut(filename):
     """
-    Add a data file to the fyda configuration.
+    Return the shortcut for a given filename.
 
     Parameters
     ----------
-    shortcut : str
-        Short name to call data file with
-
     filename : str
-        full file name relative to ``input_path`` in the directories
-        section of configuration
+        Relative to ``input`` from configuration
 
-    See Also
-    --------
-    :meth:`remove_data`
-    :meth:`add_directory`
-    :meth:`remove_directory`
+    Returns
+    -------
+    shortcut : str
+        Shortcut name for file.
     """
-    if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
-        raise OptionExistsError('data', shortcut)
-    _config_add_or_change('data', shortcut, filename)
-
-    _, extension = os.path.splitext(filename)
-    if extension in EXCEL_EXTENSIONS:
-        configure_excel(shortcut)
+    config = ProjectConfig()
+    shortcut = config['shortcut_map'][filename]
+    return shortcut
 
 
-
-def remove_data(shortcut):
+def remove_data(*shortcuts):
     """
     Remove a previously configured data reference.
 
     Parameters
     ----------
-    shortcut : str
+    shortcuts : str
         Short name identifier for data file.
 
     See Also
@@ -108,14 +111,14 @@ def remove_data(shortcut):
     :meth:`remove_directory`
     """
     config = ProjectConfig()
-    filename = config['data'][shortcut]
-    _, ext = os.path.splitext(filename)
+    for shortcut in shortcuts:
+        filename = config['data'][shortcut]
+        _, ext = os.path.splitext(filename)
 
-    if ext in EXCEL_EXTENSIONS:
-        config.remove_section(shortcut)
+        if ext in EXCEL_EXTENSIONS:
+            config.remove_section(shortcut)
 
-    _config_remove('data', shortcut)
-
+        _config_remove('data', shortcut)
 
 
 def add_directory(shortcut, directory):
@@ -178,17 +181,17 @@ def set_data_root(directory):
     :meth:`remove_data`
     :meth:`remove_directory`
     """
-    _config_add_or_change('directories', 'input', directory)
+    _config_add_or_change('directories', 'input_folder', directory)
 
 
-def configure_excel(shortcut, key=None, value=None, mode='add'):
+def _configure_option(shortcut, key=None, value=None, mode='add'):
     """
-    Add or remove keyword pairs from excel configuration.
+    Add or remove keyword pairs from data configuration.
 
     Parameters
     ----------
     shortcut : str
-        Short name identifier for excel file.
+        Short name identifier for data file.
 
     See also
     --------
@@ -196,5 +199,72 @@ def configure_excel(shortcut, key=None, value=None, mode='add'):
     """
     if mode == 'add':
         _config_add_or_change(shortcut, key, value)
+    elif mode == 'remove_option':
+        _config_remove(shortcut, key)
     elif mode == 'remove':
         _config_delete_section(shortcut)
+
+
+def add_options(shortcut, **kwargs):
+    """
+    Add keyword-value pairs to configuration for data reading.
+
+    Parameters
+    ----------
+    shortcut : str
+        Short name identifier for data file.
+    kwargs
+        additional arguments passed to the appropriate data reader in
+        :meth:`fyda.load_data`.
+    """
+    for keyword in kwargs:
+        _configure_option(shortcut,
+                          key=keyword,
+                          value=kwargs[keyword],
+                          mode='add')
+
+
+def remove_options(shortcut, *args):
+    """
+    Remove options from data reading, referenced by keyword.
+
+    Parameters
+    ----------
+    shortcut : str
+        Short name identifier for data file.
+    args
+        Name(s) of keyword in option to remove.
+    """
+    for arg in args:
+        _configure_option(shortcut,
+                          key=arg,
+                          mode='remove')
+
+
+def add_data(shortcut, filename):
+    """
+    Add a data file to the fyda configuration.
+
+    Parameters
+    ----------
+    shortcut : str
+        Short name to call data file with
+
+    filename : str
+        full file name relative to ``input_path`` in the directories
+        section of configuration
+
+    See Also
+    --------
+    :meth:`remove_data`
+    :meth:`add_directory`
+    :meth:`remove_directory`
+    """
+    if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
+        raise OptionExistsError('data', shortcut)
+    _config_add_or_change('data', shortcut, filename)
+    _config_add_or_change('shortcut_map', filename, shortcut)
+
+    _, extension = os.path.splitext(filename)
+    if extension in EXCEL_EXTENSIONS:
+        _config_add_or_change(shortcut, None, None)

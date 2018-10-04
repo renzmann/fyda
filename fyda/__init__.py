@@ -1,13 +1,13 @@
-from .configurate import (
-    ProjectConfig,
-    add_data,
-    remove_data,
-    add_directory,
-    remove_directory,
-    set_data_root,
-    configure_excel,
-)
-
-from .util import (
-    load_data,
-)
+"""
+fyda - the interface for your data
+"""
+from .configurate import ProjectConfig
+from .configurate import add_data
+from .configurate import remove_data
+from .configurate import add_directory
+from .configurate import remove_directory
+from .configurate import set_data_root
+from .configurate import remove_options
+from .configurate import add_options
+from .util import load_data
+from .util import summary
