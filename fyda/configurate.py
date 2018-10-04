@@ -15,17 +15,25 @@ CONF_PATH = os.path.abspath(
 ALLOW_OVERWRITE = False
 EXCEL_EXTENSIONS = ['.xlsx']
 
-class ProjectConfig(ConfigParser):
-    """Configuration manager."""
-    def __init__(self):
-        super().__init__()
-        self.read(CONF_PATH)
-
 
 def _write_config(config):
     """Writes config to .ini file"""
     with open(CONF_PATH, 'w') as configfile:
         config.write(configfile)
+
+
+class ProjectConfig(ConfigParser):
+    """Configuration manager."""
+    def __init__(self):
+        super().__init__()
+
+        if not os.path.exists(CONF_PATH):
+            self.add_section('directories')
+            self.add_section('data')
+            _write_config(self)
+
+        self.read(CONF_PATH)
+
 
 
 def _config_remove(section, option):
@@ -71,9 +79,6 @@ def _config_add_or_change(section, key, value):
 
     config[section][key] = value
     _write_config(config)
-
-
-# TODO add a 'summary' function to print out parts of config
 
 
 def get_shortcut(filename):
@@ -241,18 +246,14 @@ def remove_options(shortcut, *args):
                           mode='remove')
 
 
-def add_data(shortcut, filename):
+def add_data(**kwargs):
     """
     Add a data file to the fyda configuration.
 
     Parameters
     ----------
-    shortcut : str
-        Short name to call data file with
-
-    filename : str
-        full file name relative to ``input_path`` in the directories
-        section of configuration
+    kwargs
+        Keyword pairs to add, formatted as shortcut=filename.
 
     See Also
     --------
@@ -260,11 +261,12 @@ def add_data(shortcut, filename):
     :meth:`add_directory`
     :meth:`remove_directory`
     """
-    if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
-        raise OptionExistsError('data', shortcut)
-    _config_add_or_change('data', shortcut, filename)
-    _config_add_or_change('shortcut_map', filename, shortcut)
+    for shortcut, filename in kwargs.items():
+        if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
+            raise OptionExistsError('data', shortcut)
+        _config_add_or_change('data', shortcut, filename)
+        _config_add_or_change('shortcut_map', filename, shortcut)
 
-    _, extension = os.path.splitext(filename)
-    if extension in EXCEL_EXTENSIONS:
-        _config_add_or_change(shortcut, None, None)
+        _, extension = os.path.splitext(filename)
+        if extension in EXCEL_EXTENSIONS:
+            _config_add_or_change(shortcut, None, None)

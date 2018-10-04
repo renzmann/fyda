@@ -13,6 +13,9 @@ from .configurate import _config_exists
 from .configurate import get_shortcut
 
 
+SHOW_WARNINGS = True
+
+
 def _data_reader(filepath):
     filename, extension = os.path.splitext(filepath)
 
@@ -147,8 +150,13 @@ def load_data(*data_filenames, **kwargs):
                 shortcut = get_shortcut(filename)
                 kwargs.update(dict(config[shortcut]))
             except KeyError:
-                warnings.warn(('Could not find keyword configurations for "{}"'
-                              ).format(filename))
+                if SHOW_WARNINGS:
+                    msg = ('Could not find keyword configurations for "{}".'
+                           ' To suppress this warning, add a blank configuration'
+                           ' section for this data file, or set'
+                           ' fyda.util.SHOW_WARNINGS = False.'
+                          ).format(filename)
+                    warnings.warn(msg)
 
         table = reader(file_path, **kwargs)
         data_list.append(table)
@@ -170,9 +178,9 @@ def summary(*sections):
         summary.
     """
     config = ProjectConfig()
-    if sections is None:
+    if not sections:
         sections = config.sections()
-    for section in sections:
+    for section in set(sections) - set(['shortcut_map']):
         print('\n[{}]'.format(section))
         for key, value in config[section].items():
             print('{} = {}'.format(key, value))
