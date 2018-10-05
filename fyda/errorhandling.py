@@ -1,3 +1,4 @@
+"""Container for fyda-specific exception handling."""
 class ConfigurationError(Exception):
     """Raised when user tries to use data that has not been configured."""
     def __init__(self, unconfigured):
@@ -25,9 +26,9 @@ class OptionExistsError(Exception):
         msg = ('An option called "{}" already exists. '
                'To overwrite this option, first delete it '
                'using fyda.remove_{}. Or, to change this '
-               'behavior permanently, set fyda.util.ALLOW_OVERWRITE = True.'
+               'behavior permanently, set '
+               'fyda.configurate.ALLOW_OVERWRITE = True.'
               ).format(option, section)
-
         super().__init__(msg)
 
 
