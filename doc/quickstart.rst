@@ -80,7 +80,7 @@ Removing it from the configuration is as simple as::
 The way the response was worded here implies that there is some additional
 options to removing and reconfiguring. Indeed, we can tell fyda to change, add,
 or remove any section or option the same way that a normal
-:class:`ConfigParser` would::
+:class:`configparser.ConfigParser` would::
 
    >>> fyda.add_options('new_section', key='value')
    >>> fyda.summary('new_section')
