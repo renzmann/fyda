@@ -8,9 +8,10 @@ Quickstart
 Adding and loading data
 -----------------------
 
-Assuming installation went well, let's take some first steps using fyda with
-your data. At its most basic level, fyda is a way to interface with your data.
-By default, fyda will not have anything configured to work with it. Suppose
+At its most basic level, fyda is a way to interface with your data.
+By default, fyda will not have anything configured to work with it; you will
+need to configure fyda in a python session or write a python script that adds
+your desired configurations. Suppose
 your project data lives in a folder named ~/myproject/input and has two data 
 files inside it:
 
@@ -30,9 +31,10 @@ to read your data automatically::
    ...               longname='some other data_with_A long NAME.xlsx')
    >>> quit()
 
-Now fyda is ready to load up your data any time you import it into your project
-sessions. It is **completely persistent**. Notice how we quit python above. If
-we reboot python in the same environment, we can still load our data::
+That's it. fyda is now ready to load up your data any time you import it into
+your project sessions. It is **completely persistent**. Notice how we quit
+python above. If we reboot python in the same environment, we can still load
+our data::
 
    >>> import fyda
    >>> example_data = fyda.load_data('example')
