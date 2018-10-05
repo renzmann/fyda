@@ -9,5 +9,6 @@ from .configurate import remove_options
 from .configurate import add_options
 from .configurate import sections
 from .configurate import remove_section
+from .configurate import get_shortcut
 from .util import load_data
 from .util import summary
