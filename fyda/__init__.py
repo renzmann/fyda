@@ -1,6 +1,4 @@
-"""
-fyda - the interface for your data
-"""
+"""fyda - the interface for your data"""
 from .configurate import ProjectConfig
 from .configurate import add_data
 from .configurate import remove_data

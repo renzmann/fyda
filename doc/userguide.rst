@@ -18,7 +18,10 @@ Working with configuration
    remove_data
    add_directory
    remove_directory
+   add_options
+   remove_options
    set_data_root
+   sections
    summary
 
 

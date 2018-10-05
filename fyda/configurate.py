@@ -28,17 +28,15 @@ class ProjectConfig(ConfigParser):
 
     Notes
     -----
-
-    This class is a wrapper around :class:`configparser.ConfigParser` with the
-    added benefit of automatically reading the configuration file on
-    instantiation. If the configuration file doesn't exist when
-    :class:`ConfigParser` is called, it is created in the environment
-    automatically.
+        This class is a wrapper around :class:`configparser.ConfigParser` with
+        the added benefit of automatically reading the configuration file on
+        instantiation. If the configuration file doesn't exist when
+        :class:`ConfigParser` is called, it is created in the environment
+        automatically.
 
     See also
     --------
-
-    :class:`configparser.ConfigParser`
+    :class:`configparser.ConfigParser` : configuration parsing class
     """
     def __init__(self):
         super().__init__()
@@ -127,9 +125,9 @@ def remove_data(*shortcuts):
 
     See Also
     --------
-    :meth:`add_data`
-    :meth:`add_directory`
-    :meth:`remove_directory`
+    :meth:`add_data` : add data to config
+    :meth:`add_directory` : add a directory to config
+    :meth:`remove_directory` : remove a directory from config
     """
     config = ProjectConfig()
     for shortcut in shortcuts:
@@ -155,9 +153,9 @@ def add_directory(shortcut, directory):
 
     See Also
     --------
-    :meth:`remove_directory`
-    :meth:`add_data`
-    :meth:`remove_data`
+    :meth:`remove_directory` : remove a directory from configuration
+    :meth:`add_data` : add data to configuration
+    :meth:`remove_data` : remove data from configuration
     """
     if _config_exists('directories', shortcut) & (not ALLOW_OVERWRITE):
         raise OptionExistsError('directory', shortcut)
@@ -175,9 +173,9 @@ def remove_directory(directory):
 
     See Also
     --------
-    :meth:`add_directory`
-    :meth:`add_data`
-    :meth:`remove_data`
+    :meth:`add_directory` : add directory to configuration
+    :meth:`add_data` : add data to configuration
+    :meth:`remove_data`: remove data from configuration
     """
     _config_remove('directories', directory)
 
@@ -192,18 +190,18 @@ def set_data_root(directory):
         Full filepath to the directory.
 
 
-    .. note::
-
-       This data root will always be referenced with the shortcut
-       ``input_folder``.
+    Notes
+    -----
+        This data root will always be referenced with the shortcut
+        ``input_folder``.
 
 
     See Also
     --------
-    :meth:`add_data`
-    :meth:`add_directory`
-    :meth:`remove_data`
-    :meth:`remove_directory`
+    :meth:`add_data` : add data to configuration
+    :meth:`add_directory` : add directory to configuration
+    :meth:`remove_data` : remove data from configuration
+    :meth:`remove_directory` : remove directory from configuration
     """
     _config_add_or_change('directories', 'input_folder', directory)
 
@@ -219,7 +217,7 @@ def _configure_option(shortcut, key=None, value=None, mode='add'):
 
     See also
     --------
-    :meth:`add_data`
+    :meth:`add_data` : add data to configuration
     """
     if mode == 'add':
         _config_add_or_change(shortcut, key, value)
@@ -304,9 +302,9 @@ def add_data(**kwargs):
 
     See Also
     --------
-    :meth:`remove_data`
-    :meth:`add_directory`
-    :meth:`remove_directory`
+    :meth:`remove_data` : remove data from configuration
+    :meth:`add_directory` : add directory to configuration
+    :meth:`remove_directory` : remove directory from configuration
     """
     for shortcut, filename in kwargs.items():
         if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
