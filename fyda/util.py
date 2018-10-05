@@ -176,6 +176,7 @@ def summary(*sections):
     if not sections:
         sections = config.sections()
     for section in set(sections) - set(['shortcut_map']):
-        print('\n[{}]'.format(section))
+        print('[{}]'.format(section))
         for key, value in config[section].items():
             print('{} = {}'.format(key, value))
+        print('\n')
