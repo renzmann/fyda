@@ -32,7 +32,7 @@ def _data_reader(filepath):
         return pd.read_json
     if extension in ['.sas7bdat', '.xport']:
         return pd.read_sas
-    if extension == '.npz':
+    if extension in ['.npy', '.npz']:
         return np.load
 
     raise ReaderError()
