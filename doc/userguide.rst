@@ -13,16 +13,18 @@ Working with configuration
 .. autosummary::
    :toctree: generated/
 
-   ProjectConfig
+   summary
+   set_data_root
    add_data
    remove_data
    add_directory
    remove_directory
    add_options
    remove_options
-   set_data_root
    sections
-   summary
+   add_section
+   remove_section
+   ProjectConfig
 
 
 Loading configured data

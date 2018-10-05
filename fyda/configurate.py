@@ -82,7 +82,7 @@ def _config_exists(section, option=None):
     return option in config.options(section)
 
 
-def _config_add_or_change(section, key, value):
+def _config_add_or_change(section, key=None, value=None):
     config = ProjectConfig()
 
     if not _config_exists(section):
@@ -261,6 +261,19 @@ def remove_options(shortcut, *args):
         _configure_option(shortcut,
                           key=arg,
                           mode='remove_option')
+
+
+def add_section(*section_names):
+    """
+    Add sections to config.
+
+    Parameters
+    ----------
+    section_names : str
+        Section titles to add.
+    """
+    for section in section_names:
+        _config_add_or_change(section)
 
 
 def remove_section(*section_names):
