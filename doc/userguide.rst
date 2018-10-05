@@ -19,8 +19,8 @@ Working with configuration
    remove_data
    add_directory
    remove_directory
-   add_options
-   remove_options
+   add_option
+   remove_option
    sections
    add_section
    remove_section

@@ -5,8 +5,8 @@ from .configurate import remove_data
 from .configurate import add_directory
 from .configurate import remove_directory
 from .configurate import set_data_root
-from .configurate import remove_options
-from .configurate import add_options
+from .configurate import remove_option
+from .configurate import add_option
 from .configurate import sections
 from .configurate import add_section
 from .configurate import remove_section

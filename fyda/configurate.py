@@ -140,26 +140,43 @@ def remove_data(*shortcuts):
         _config_remove('data', shortcut)
 
 
-def add_directory(shortcut, directory):
+def add_directory(**kwargs):
     """
-    Add a directory to the fyda configuration.
+    Add director(y/ies) to fyda configuration.
 
     Parameters
     ----------
-    shortcut : str
-        Short name to call directory with.
-    directory : str
-        Full filepath to the directory.
+    kwargs : str
+        Keywords passed as shortcut=directory.
 
     See Also
     --------
     :meth:`remove_directory` : remove a directory from configuration
     :meth:`add_data` : add data to configuration
     :meth:`remove_data` : remove data from configuration
+
+    Examples
+    --------
+
+        >>> fyda.summary('directories')
+        [directories]
+
+        >>> fyda.add_directory(place1='first place')
+        >>> fyda.summary('directories')
+        [directories]
+        place1 = first place
+
+        >>> fyda.add_directory(place2='second place', place3='third place')
+        >>> fyda.summary('directories')
+        [directories]
+        place1 = first place
+        place2 = second place
+        place3 = third place
     """
-    if _config_exists('directories', shortcut) & (not ALLOW_OVERWRITE):
-        raise OptionExistsError('directory', shortcut)
-    _config_add_or_change('directories', shortcut, directory)
+    for shortcut, directory in kwargs.items():
+        if _config_exists('directories', shortcut) & (not ALLOW_OVERWRITE):
+            raise OptionExistsError('directory', shortcut)
+        _config_add_or_change('directories', shortcut, directory)
 
 
 def remove_directory(directory):
@@ -227,7 +244,7 @@ def _configure_option(shortcut, key=None, value=None, mode='add'):
         _config_delete_section(shortcut)
 
 
-def add_options(shortcut, **kwargs):
+def add_option(shortcut, **kwargs):
     """
     Add keyword-value pairs to configuration for data reading.
 
@@ -246,7 +263,7 @@ def add_options(shortcut, **kwargs):
                           mode='add')
 
 
-def remove_options(shortcut, *args):
+def remove_option(shortcut, *args):
     """
     Remove options from data reading, referenced by keyword.
 
