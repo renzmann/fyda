@@ -146,10 +146,13 @@ def load_data(*data_filenames, **kwargs):
                 kwargs.update(dict(config[shortcut]))
             except KeyError:
                 if SHOW_WARNINGS:
-                    msg = ('Could not find keyword configurations for "{}".'
-                           ' To suppress this warning, add a blank configuration'
-                           ' section for this data file, or set'
-                           ' fyda.util.SHOW_WARNINGS = False.'
+                    msg = ('Could not find keyword configurations for "{0}".'
+                           ' To suppress this warning, use'
+                           ' fyda.add_option(\'{0}\')'
+                           ' to add a blank configuration'
+                           ' section for this data file; or set'
+                           ' fyda.util.SHOW_WARNINGS = False to suppress all'
+                           ' warnings.'
                           ).format(filename)
                     warnings.warn(msg)
 
