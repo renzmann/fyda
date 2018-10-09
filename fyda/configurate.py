@@ -345,3 +345,22 @@ def add_data(**kwargs):
         _, extension = os.path.splitext(filename)
         if extension in EXCEL_EXTENSIONS:
             _config_add_or_change(shortcut, None, None)
+
+
+def dir_path(dir_name):
+    """
+    Return full directory path from shortcut name.
+
+    Parameters
+    ----------
+    dir_name : str
+        Shortcut name to access directory path with.
+
+    Returns
+    -------
+    directory : str
+        Directory filepath.
+    """
+    config = ProjectConfig()
+    # TODO error handling
+    return config['directories'][dir_name]

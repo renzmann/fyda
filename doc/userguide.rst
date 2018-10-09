@@ -19,6 +19,7 @@ Working with configuration
    remove_data
    add_directory
    remove_directory
+   dir_path
    add_option
    remove_option
    sections
