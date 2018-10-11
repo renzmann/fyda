@@ -17,6 +17,7 @@ Working with configuration
    set_data_root
    add_data
    remove_data
+   data_path
    add_directory
    remove_directory
    dir_path

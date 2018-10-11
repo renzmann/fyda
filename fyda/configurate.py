@@ -363,4 +363,22 @@ def dir_path(dir_name):
     """
     config = ProjectConfig()
     # TODO error handling
-    return config['directories'][dir_name]
+    return os.path.expanduser(config['directories'][dir_name])
+
+
+def data_path(data_name):
+    """
+    Return full file path from shortcut name.
+
+    Parameters
+    ----------
+    data_name : str
+        Shortcut name to access data path with.
+
+    Returns
+    -------
+    filepath : str
+        File path.
+    """
+    config = ProjectConfig()
+    return os.path.expanduser(config['data'][data_name])
