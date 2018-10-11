@@ -381,4 +381,10 @@ def data_path(data_name):
         File path.
     """
     config = ProjectConfig()
-    return os.path.expanduser(config['data'][data_name])
+    full_path = os.path.expanduser(
+        os.path.join(
+            dir_path('input_folder'),
+            config['data'][data_name]
+        )
+    )
+    return full_path
