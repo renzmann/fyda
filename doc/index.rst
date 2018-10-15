@@ -32,32 +32,14 @@ Here's how it works:
 
 .. highlight:: none
 
+
 Installation
 ------------
 It is recommended that you use the Anaconda distribution of Python 3 with
 fyda. It is also recommended that you have a separate virtual environment (if
-you haven't made one already).
+you haven't made one already).::
 
-
-Assuming your current working directory is where you want to put this repo,:: 
-
-   $ git clone https://github.com/renzmann/fyda
-
-
-Next, install the requirements
-
-(Linux / macOS)::
-
-   $ while read requirement; do conda install --yes $requirement; done < requirements.txt
-
-(Windows)::
-
-   > FOR /F "delims=~" %f in (requirements.txt) DO conda install --yes "%f" || pip install "%f"
-
-Finally, install fyda::
-
-   $ pip install .
-
+   $ pip install fyda
 
 
 .. _under-construction:
