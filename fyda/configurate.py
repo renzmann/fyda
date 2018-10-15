@@ -87,6 +87,7 @@ def _config_add_or_change(section, key=None, value=None):
 
     if not _config_exists(section):
         config.add_section(section)
+        _write_config(config)
 
     if (key is None) or (value is None):
         return
@@ -256,6 +257,8 @@ def add_option(shortcut, **kwargs):
         additional arguments passed to the appropriate data reader in
         :meth:`fyda.load_data`.
     """
+    if not kwargs:
+        add_section(shortcut)
     for keyword in kwargs:
         _configure_option(shortcut,
                           key=keyword,
