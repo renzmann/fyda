@@ -1,9 +1,5 @@
 # fyda - The "interface For Your DAta"
 
-This package is still under construction. Below is a build plan for expected
-features.
-
-
 ## Features
 
 Easily interact with your data using as little python code as possible. Control
