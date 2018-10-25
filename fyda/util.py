@@ -177,7 +177,7 @@ def summary(*sections):
     """
     config = ProjectConfig()
     if not sections:
-        sections = config.sections()
+        sections = ['directories', 'data']
     for section in set(sections) - set(['shortcut_map']):
         print('[{}]'.format(section))
         for key, value in config[section].items():
