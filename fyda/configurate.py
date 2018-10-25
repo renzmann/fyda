@@ -1,9 +1,18 @@
 """
-Configuration management module.
+Main configuration management library.
 """
+# TODO:
+# 1. Start converting some functionality to ConfigObj
+# 2. Convert Data options to a nested format
+# 3. Add functionality for working with constants, lists, and other objects
+# 4. Put a damper on summary(), require an argument or print only basic facts
+# 5. Figure out how to collect pipelines into fyda configuration; best option
+#    is probaby to save pipeline objects as files and have fyda point to those.
+
 import os
 from configparser import ConfigParser
 from .errorhandling import OptionExistsError
+from configobj import ConfigObj
 
 CONF_PATH = os.path.abspath(
     os.path.join(
@@ -339,15 +348,22 @@ def add_data(**kwargs):
     :meth:`add_directory` : add directory to configuration
     :meth:`remove_directory` : remove directory from configuration
     """
+    add_options = kwargs.pop('add_options', False)
+
     for shortcut, filename in kwargs.items():
+
         if _config_exists('data', shortcut) & (not ALLOW_OVERWRITE):
             raise OptionExistsError('data', shortcut)
+
         _config_add_or_change('data', shortcut, filename)
         _config_add_or_change('shortcut_map', filename, shortcut)
-
         _, extension = os.path.splitext(filename)
+
         if extension in EXCEL_EXTENSIONS:
             _config_add_or_change(shortcut, None, None)
+
+        if add_options:
+            add_option(shortcut)
 
 
 def dir_path(dir_name):
