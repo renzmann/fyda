@@ -1,11 +1,13 @@
 """Container for fyda-specific exception handling."""
+
+
 class ConfigurationError(Exception):
     """Raised when user tries to use data that has not been configured."""
     def __init__(self, unconfigured):
         msg = ('The option "{}" has not been configured for use with fyda. '
                'See the documentation for how to configure new data and '
                'options.'
-              ).format(unconfigured)
+               ).format(unconfigured)
 
         super().__init__(msg)
 
@@ -16,7 +18,7 @@ class ExcelConfigError(Exception):
         msg = (('Excel file "{}" not '
                 'configured! See documentation on how to '
                 'configure excel file for fyda.'
-               ).format(unconfigured))
+                ).format(unconfigured))
         super().__init__(msg)
 
 
@@ -28,7 +30,7 @@ class OptionExistsError(Exception):
                'using fyda.remove_{}. Or, to change this '
                'behavior permanently, set '
                'fyda.configurate.ALLOW_OVERWRITE = True.'
-              ).format(option, section)
+               ).format(option, section)
         super().__init__(msg)
 
 

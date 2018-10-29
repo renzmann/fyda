@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
   name = 'fyda',
   packages = ['fyda'],
-  version = '0.1',
+  version = '0.2',
   license='MIT',
   description = 'General data interface for Python 3',
   author = 'Robert Enzmann',
