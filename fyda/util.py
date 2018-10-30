@@ -11,6 +11,7 @@ from .configurate import ProjectConfig
 from .configurate import EXCEL_EXTENSIONS
 from .configurate import _config_exists
 from .configurate import get_shortcut
+from .configurate import data_path
 
 
 SHOW_WARNINGS = True
@@ -53,7 +54,52 @@ def _pave_inputs(input_path, *args):
         yield arg_file
 
 
-def load_data(*data_filenames, **kwargs):
+def _load_data(data_filename, **kwargs):
+    """Read data and load it up."""
+
+    config = ProjectConfig()
+    full_path = data_path(data_filename)
+    reader = _data_reader(full_path)
+
+    if _config_exists(data_filename):
+        kwargs.update(dict(config[data_filename]))
+    else:
+        try:
+            shortcut = get_shortcut(data_filename)
+            kwargs.update(dict(config[shortcut]))
+        except KeyError:
+            if SHOW_WARNINGS:
+                msg = ('Could not find keyword configurations for "{0}".'
+                       ' To suppress this warning, use'
+                       ' fyda.add_option(\'{0}\')'
+                       ' to add a blank configuration'
+                       ' section for this data file; or set'
+                       ' fyda.util.SHOW_WARNINGS = False to suppress all'
+                       ' warnings.'
+                       ).format(data_filename)
+                warnings.warn(msg)
+
+    table = reader(full_path, **kwargs)
+    return table
+
+
+def _try_fyda_load(data_name, verbose=False, **options):
+    """
+    Attempt to load data from fyda configuration. If none is found, warn the
+    user and return ``None``.
+    """
+    try:
+        default_value = _load_data(data_name, **options)
+    except (KeyError, ConfigurationError):
+        if verbose:
+            warnings.warn(('No configuration found for {}. Check the fyda '
+                           'configuration.').format(data_name))
+        default_value = None
+
+    return default_value
+
+
+def load_data(*data_filenames, **options):
     """
     Load specified data.
 
@@ -63,7 +109,10 @@ def load_data(*data_filenames, **kwargs):
         By default this will be the list of names given in configuration under
         the ``data`` keyword.
 
-    kwargs : optional
+    verbose : bool, default True
+        If True, warn the user when fyda fails to load a data filename.
+
+    options : optional
         Additional arguments passed to the data reader.
 
     Returns
@@ -122,42 +171,17 @@ def load_data(*data_filenames, **kwargs):
     1                4.9               3.0  ...               0.2      setosa
 
     """
-
-    config = ProjectConfig()
-    if not data_filenames:
-        data_filenames = config['data'].values()
-
-    directories = config['directories']
-    input_path = os.path.join(os.path.expanduser(directories['input_folder']))
-    all_inputs = list(_pave_inputs(input_path, *data_filenames))
     data_list = []
+    config = ProjectConfig()
 
-    for enum in enumerate(all_inputs):
-        count = enum[0]                   # Elements of data_filenames may or
-        file_path = enum[1]               # may not have file extensions, so we
-        filename = data_filenames[count]  # have the _data_reader call take
-        reader = _data_reader(filename)   # care of parsing through them.
+    if not data_filenames:
+        # TODO make a 'default load' section of config.
+        data_filenames = config['data'].keys()
 
-        if _config_exists(filename):
-            kwargs.update(dict(config[filename]))
-        else:
-            try:
-                shortcut = get_shortcut(filename)
-                kwargs.update(dict(config[shortcut]))
-            except KeyError:
-                if SHOW_WARNINGS:
-                    msg = ('Could not find keyword configurations for "{0}".'
-                           ' To suppress this warning, use'
-                           ' fyda.add_option(\'{0}\')'
-                           ' to add a blank configuration'
-                           ' section for this data file; or set'
-                           ' fyda.util.SHOW_WARNINGS = False to suppress all'
-                           ' warnings.'
-                           ).format(filename)
-                    warnings.warn(msg)
-
-        table = reader(file_path, **kwargs)
-        data_list.append(table)
+    for name in data_filenames:
+        verbose = options.pop('verbose', True)
+        data = _try_fyda_load(name, verbose=verbose, **options)
+        data_list.append(data)
 
     if len(data_list) == 1:
         return data_list[0]

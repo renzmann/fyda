@@ -11,8 +11,8 @@ Main configuration management library.
 
 import os
 from configparser import ConfigParser
-from .errorhandling import OptionExistsError
 from configobj import ConfigObj
+from .errorhandling import OptionExistsError
 
 CONF_PATH = os.path.abspath(
     os.path.join(
@@ -45,7 +45,7 @@ class ProjectConfig(ConfigParser):
 
     See also
     --------
-    :class:`configparser.ConfigParser` : configuration parsing class
+    :py:class:`configparser.ConfigParser` : configuration parsing class
     """
     def __init__(self):
         super().__init__()
@@ -58,13 +58,12 @@ class ProjectConfig(ConfigParser):
         self.read(CONF_PATH)
 
 
-
 def _config_remove(section, option):
     config = ProjectConfig()
     is_removed = config.remove_option(section, option)
     if is_removed:
         print(('Section "{}", option "{}" sucessfully removed.'
-              ).format(section, option))
+               ).format(section, option))
         _write_config(config)
     else:
         print('Option not removed! Check that it exists.')
@@ -75,11 +74,10 @@ def _config_delete_section(section):
     is_removed = config.remove_section(section)
     if is_removed:
         print(('Section "{}" sucessfully removed.'
-              ).format(section))
+               ).format(section))
         _write_config(config)
     else:
         print('Section not removed! Check that it exists.')
-
 
 
 def _config_exists(section, option=None):
