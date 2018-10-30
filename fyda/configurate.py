@@ -11,7 +11,6 @@ Main configuration management library.
 
 import os
 from configparser import ConfigParser
-from configobj import ConfigObj
 from .errorhandling import OptionExistsError
 
 CONF_PATH = os.path.abspath(
