@@ -28,7 +28,9 @@ to read your data automatically::
    >>> import fyda
    >>> fyda.set_data_root('~/myproject/input')
    >>> fyda.add_data(example='example.csv',
-   ...               longname='some other data_with_A long NAME.xlsx')
+   ...               longname='some other data_with_A long NAME.xlsx',
+   ...               add_options=True)  # This final option stops fyda from
+   ...                                 # making an annoying popup
    >>> quit()
 
 That's it. fyda is now ready to load up your data any time you import it into
