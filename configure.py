@@ -7,6 +7,9 @@
 # repository if you want to get a feel for working with fyda.                 #
 # --------------------------------------------------------------------------- #
 
+import fyda
+import os
+
 # def main():
 #     """Main execution."""
 #     # Leave this statement alone
