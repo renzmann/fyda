@@ -68,6 +68,26 @@ filenames back to the shortcuts, and generally you don't need to worry about
 it, since fyda will handle all of that in the background.
 
 
+Using fyda to get file paths
+----------------------------
+
+When working with data on multiple platforms, it can be a pain to make sure all
+of the references to data locations are consistent. Once the "input_folder" is
+set for fyda, telling the code where to find it is easy. Using the example
+data we added earlier, it would look like this::
+
+   >>> fyda.data_path('example')
+   '/home/username/myproject/input/example.csv'
+
+If you use the same code on a Windows machine, it would instead return::
+
+   >>> fyda.data_path('example')
+   'C:\\Users\\username\\myproject\\input\\example.csv'
+
+This is useful when collaborating on a project or when you need platform
+independence for your code.
+
+
 Removing configurations
 -----------------------
 
@@ -82,20 +102,31 @@ options to removing and reconfiguring. Indeed, we can tell fyda to change, add,
 or remove any section or option the same way that a normal
 :class:`configparser.ConfigParser` would::
 
-   >>> fyda.add_options('new_section', key='value')
+   >>> fyda.add_option('new_section', key='value')
    >>> fyda.summary('new_section')
    
    [new_section]
    key = value
 
-We can also tell fyda to remove this in one of two ways; if you just want to
-delete the key-value pair, but keep the section::
+Since the "new_section" didn't already exist, fyda created it automatically.
+Adding a new key/value pair to the section can be done using the same
+function::
 
-   >>> fyda.remove_options('new_section', 'key')
+   >>> fyda.add_option('new_section', key2='value2')
+   >>> fyda.summary('new_section')
+   [new_section]
+   key = value
+   key2 = value2
+
+We can also tell fyda to remove this in one of two ways; if you just want to
+delete a single key-value pair, but keep the section::
+
+   >>> fyda.remove_option('new_section', 'key')
    Section "new_section", option "key" sucessfully removed.
    >>> fyda.summary('new_section')
 
    [new_section]
+   key2 = value2
 
 To remove this section altogether, use :meth:`fyda.remove_section`::
 
