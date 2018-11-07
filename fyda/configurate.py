@@ -11,7 +11,7 @@ Main configuration management library.
 
 import os
 from configparser import ConfigParser
-from .errorhandling import OptionExistsError
+from .errorhandling import OptionExistsError, ConfigurationError
 
 CONF_PATH = os.path.abspath(
     os.path.join(
@@ -397,10 +397,17 @@ def data_path(data_name):
         File path.
     """
     config = ProjectConfig()
-    full_path = os.path.expanduser(
-        os.path.join(
-            dir_path('input_folder'),
-            config['data'][data_name]
+
+    try:
+        full_path = os.path.expanduser(
+            os.path.join(
+                dir_path('input_folder'),
+                config['data'][data_name]
+            )
         )
-    )
+    except KeyError:
+        raise ConfigurationError(("Can't get data path for {}. "
+                                  "Not configured with "
+                                  "fyda.".format(data_name)))
+
     return full_path
