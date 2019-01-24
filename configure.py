@@ -1,6 +1,6 @@
+# =========================================================================== #
 #      Example configuration script for adding/working with data in fyda      #
-# --------------------------------------------------------------------------- #
-#                                                                             #
+# =========================================================================== #
 # Uncomment everything below and run this script in command line to configure #
 # fyda. You can then open up python and poke around at the configuration      #
 # values. The iris, X, and y data sets are available as examples within this  #
