@@ -1,5 +1,4 @@
 """fyda - the interface for your data"""
-from .configurate import ProjectConfig
 from .configurate import add_data
 from .configurate import remove_data
 from .configurate import add_directory
@@ -13,6 +12,6 @@ from .configurate import remove_section
 from .configurate import get_shortcut
 from .configurate import dir_path
 from .configurate import data_path
-from .util import load_data
-from .util import summary
-from .base import DataBank
+from .util import load_data, summary
+from .base import DataBank, ProjectConfig
+from .base import load_s3_obj
