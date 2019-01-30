@@ -16,9 +16,8 @@ setup(
         'numpy',
         'pandas',
         'configparser',
-        'boto3',
-        'xlrd',
-        ],
+        'boto3'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
