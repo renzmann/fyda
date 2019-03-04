@@ -89,7 +89,12 @@ class DataBank:
     def withdraw(self, data_name, reader=None):
 
         # TODO missing name handling
-        filename = self._data[data_name]
+        try:
+            filename = self._data[data_name]
+        except KeyError:
+            msg = ('File name "%s" not found. Check that the file exists and'
+                   ' try refreshing the DataBank tree.')
+            raise KeyError(msg)
 
         if reader is None:
             try:
