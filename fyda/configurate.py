@@ -5,8 +5,7 @@ Main configuration management library.
 # 1. Start converting some functionality to ConfigObj
 # 2. Convert Data options to a nested format
 # 3. Add functionality for working with constants, lists, and other objects
-# 4. Put a damper on summary(), require an argument or print only basic facts
-# 5. Figure out how to collect pipelines into fyda configuration; best option
+# 4. Figure out how to collect pipelines into fyda configuration; best option
 #    is probaby to save pipeline objects as files and have fyda point to those.
 
 import os

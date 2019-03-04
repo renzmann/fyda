@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='fyda',
     packages=['fyda'],
-    version='0.3.1',
+    version='0.4.0',
     license='MIT',
     description='General data interface for Python 3',
     author='Robert Enzmann',
@@ -15,7 +15,9 @@ setup(
     install_requires=[
         'numpy',
         'pandas',
-        ],
+        'configparser',
+        'boto3'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

@@ -3,12 +3,12 @@
 .. currentmodule:: fyda
 
 User Guide
-----------
+==========
 
 See the :ref:`quickstart` to quickly get started using fyda.
 
 Working with configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 .. autosummary::
    :toctree: generated/
@@ -30,7 +30,7 @@ Working with configuration
 
 
 Loading configured data
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 .. autosummary::
    :toctree: generated/
