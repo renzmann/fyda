@@ -108,12 +108,13 @@ class DataBank:
         """Determine the actual file location, based on input string."""
 
         try:  # First check shortcuts
-            filename = self.tree[input_string]
+            filename = self.shortcuts[input_string]
         except KeyError:
             filename = os.path.join(self._root, input_string)
 
         try:  # Then see if it is a path relative to data root
-            open(filename)
+            with open(filename) as f:
+                pass
         except (FileNotFoundError, PermissionError):
             # Otherwise, just take original string
             filename = input_string
