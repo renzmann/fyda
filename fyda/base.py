@@ -248,8 +248,8 @@ def _check_bucket(bucket_name):
             bucket_name = pc['directories']['s3_bucket']
         except KeyError:
             msg = ("Can't determine s3 bucket name. Either pass the "
-                   "bucket_name explicitly, or add the s3_bucket "
-                   "configuration value to your .fydarc")
+                   "bucket_name explicitly, or add an s3_bucket "
+                   "configuration value under ['directories'] in your .fydarc")
             raise TypeError(msg)
 
     return bucket_name
