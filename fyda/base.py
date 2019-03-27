@@ -9,6 +9,7 @@ import json
 import warnings
 from configparser import ConfigParser
 from . import options
+import importlib
 
 
 # TODO
@@ -19,6 +20,8 @@ from . import options
 # Constants
 # -----------------------------------------------------------------------------
 def _get_conf():  # Allows the user to change configuration path dynamically
+
+    importlib.reload(options)
 
     if not options.CONFIG_LOCATION:
         return options.locate_config()
