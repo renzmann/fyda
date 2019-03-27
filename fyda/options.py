@@ -6,6 +6,7 @@ import os.path as op
 # Constants
 # -----------------------------------------------------------------------------
 SHOW_WARNINGS = True
+CONFIG_LOCATION = None
 
 
 # -----------------------------------------------------------------------------
@@ -18,6 +19,34 @@ SHOW_WARNINGS = True
 #    4. User home
 #    5. (System level)
 def locate_config(config_name='.fydarc', sysvar='FYDA_HOME'):
+    """
+    Locate the configuration file following a prioritized hierarchy.
+
+    Parameters
+    ----------
+    config_name : str
+        Name of the config file to look for.
+    sysvar : str
+        System-level variable that fyda will use when looking for a
+        configuration file.
+
+    Returns
+    -------
+    path : str
+        Path to the configuration file. If the file is not found in any of the
+        locations specified in the hierarchy, then the location to where fyda
+        is installed is returned.
+
+    Notes
+    -----
+    The hierarchy for file location prioritization is:
+
+    1. CWD
+    2. Project level
+    3. Install location
+    4. User home
+    5. (System level)
+    """
 
     # If a config is in the current working directory, prioritize it
     cwd = op.abspath(config_name)
@@ -42,5 +71,4 @@ def locate_config(config_name='.fydarc', sysvar='FYDA_HOME'):
             return path
 
     return project
-
 
