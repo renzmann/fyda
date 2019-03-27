@@ -11,11 +11,19 @@ from configparser import ConfigParser
 from . import options
 
 
+# TODO
+# Prefix assignment for duplicate names. Get rid of nasty warning.
+
+
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
 def _get_conf():  # Allows the user to change configuration path dynamically
-    return options.conf_path
+
+    if not options.CONFIG_LOCATION:
+        return options.locate_config()
+
+    return options.CONFIG_LOCATION
 
 
 # -----------------------------------------------------------------------------
@@ -113,7 +121,7 @@ class DataBank:
             filename = os.path.join(self._root, input_string)
 
         try:  # Then see if it is a path relative to data root
-            with open(filename) as f:
+            with open(filename) as f:  # noqa: F841
                 pass
         except (FileNotFoundError, PermissionError):
             # Otherwise, just take original string
@@ -141,7 +149,7 @@ class DataBank:
             shortcut = filename
         if reader is None:
             reader = _pick_reader(filename, error='ignore')
-        if shortcut in self._reader_map:
+        if (shortcut in self._reader_map) & (options.SHOW_WARNINGS):
             warnings.warn('Non-unique file shortcut "%s" overwritten!'
                           % shortcut)
 
@@ -195,7 +203,6 @@ class DataBank:
 
         """
 
-        # TODO prefix assignment for duplicate names.
         directory = {}
 
         for root_dir, dirnames, filenames in os.walk(root):
