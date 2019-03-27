@@ -12,12 +12,6 @@ CONFIG_LOCATION = None
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
-# Select config file based on heirarchy of selection
-#    1. CWD
-#    2. Project level
-#    3. Install location
-#    4. User home
-#    5. (System level)
 def locate_config(config_name='.fydarc', sysvar='FYDA_HOME'):
     """
     Locate the configuration file following a prioritized hierarchy.
