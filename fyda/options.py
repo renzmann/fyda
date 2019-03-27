@@ -5,6 +5,12 @@ import os.path as op
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
+SHOW_WARNINGS = True
+
+
+# -----------------------------------------------------------------------------
+# Variables
+# -----------------------------------------------------------------------------
 # Select config file based on heirarchy of selection
 #    1. CWD
 #    2. Project level
@@ -38,4 +44,3 @@ def locate_config(config_name='.fydarc', sysvar='FYDA_HOME'):
     return project
 
 
-conf_path = locate_config()
