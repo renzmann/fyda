@@ -65,4 +65,3 @@ def locate_config(config_name='.fydarc', sysvar='FYDA_HOME'):
             return path
 
     return project
-
