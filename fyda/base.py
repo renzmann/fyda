@@ -10,10 +10,12 @@ import warnings
 from configparser import ConfigParser
 from . import options
 import importlib
+from .errorhandling import NoShortcutError
 
 
 # TODO
 # Prefix assignment for duplicate names. Get rid of nasty warning.
+# Sanity checks for file assignment in .fydarc. Possibly get flexible there.
 
 
 # -----------------------------------------------------------------------------
@@ -118,9 +120,19 @@ class DataBank:
     def _determine_path(self, input_string):
         """Determine the actual file location, based on input string."""
 
-        try:  # First check shortcuts
+        pc = ProjectConfig()
+
+        # .fydarc takes priority
+        if input_string in pc['data'].keys():
+            return os.path.join(self._root, pc['data'][input_string])
+
+        try:  # Second check shortcuts
             filename = self.shortcuts[input_string]
         except KeyError:
+
+            if os.path.splitext(input_string)[1] == '':
+                raise NoShortcutError(input_string)
+
             filename = os.path.join(self._root, input_string)
 
         try:  # Then see if it is a path relative to data root
@@ -183,7 +195,7 @@ class DataBank:
             try:
                 reader = self.readers[data_name]
             except KeyError:
-                reader = _pick_reader(os.path.splitext(filename)[-1])
+                reader = _pick_reader(filename)
 
         return _decode(reader, filename)
 
@@ -317,7 +329,36 @@ def _write_config(config):
 # -----------------------------------------------------------------------------
 # Public library
 # -----------------------------------------------------------------------------
-def load_s3_obj(file_name, bucket_name=None, reader=None, **kwargs):
+def data_path(shortcut, conf_path=_get_conf(), root=None):
+
+    db = DataBank(conf_path, root)
+
+    if shortcut in db.shortcuts:
+        return db.shortcuts[shortcut]
+    else:
+        try:
+            pc = ProjectConfig()
+            return os.path.join(pc['directories']['root'],
+                                pc['data'][shortcut])
+        except KeyError:
+            raise NoShortcutError(shortcut)
+
+
+def load(file_name):
+    """
+    Load data intelligently.
+
+    Parameters
+    ----------
+    file_names : str or path-like
+        Files to load. These can be shortcuts or file paths.
+    """
+
+    db = DataBank()
+    return db.withdraw(file_name)
+
+
+def load_s3(file_name, bucket_name=None, reader=None, **kwargs):
     """
     Read a file from S3.
 
@@ -354,17 +395,3 @@ def load_s3_obj(file_name, bucket_name=None, reader=None, **kwargs):
         obj = reader(data, **kwargs)
 
     return obj
-
-
-def load(file_name):
-    """
-    Load data intelligently.
-
-    Parameters
-    ----------
-    file_names : str or path-like
-        Files to load. These can be shortcuts or file paths.
-    """
-
-    db = DataBank()
-    return db.withdraw(file_name)
