@@ -15,7 +15,9 @@ from .errorhandling import NoShortcutError
 
 # TODO
 # Prefix assignment for duplicate names. Get rid of nasty warning.
+# ?? Option values for behavior with duplicates. (Overwrite/keep/rename)
 # Sanity checks for file assignment in .fydarc. Possibly get flexible there.
+# Future idea: some way to search through files/shortcuts; like fuzzy search
 
 
 # -----------------------------------------------------------------------------
