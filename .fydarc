@@ -1,0 +1,4 @@
+[directories]
+ROOT = ./data
+
+[data]

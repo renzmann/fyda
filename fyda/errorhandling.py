@@ -1,6 +1,9 @@
 """Container for fyda-specific exception handling."""
 
 
+# -----------------------------------------------------------------------------
+# Custom Error Classes
+# -----------------------------------------------------------------------------
 class ConfigurationError(Exception):
     """Raised when user tries to use data that has not been configured."""
     def __init__(self, unconfigured):
