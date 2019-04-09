@@ -54,6 +54,7 @@ class ProjectConfig(ConfigParser):
     --------
     :py:class:`configparser.ConfigParser` : configuration parsing class
     """
+
     def __init__(self, make_config=True):
         super().__init__()
 
@@ -313,6 +314,7 @@ def _pick_reader(filename, error='raise'):
         def open_reader(x):
             with open(x, 'r') as fileobj:
                 return fileobj.read()
+
         return open_reader
 
     if error == 'ignore':
@@ -333,7 +335,6 @@ def _write_config(config):
 # Public library
 # -----------------------------------------------------------------------------
 def data_path(shortcut, root=None):
-
     db = DataBank(root)
 
     if shortcut in db.shortcuts:
@@ -394,7 +395,7 @@ def load_s3(file_name, bucket_name=None, reader=None, **kwargs):
 
     with BytesIO() as data:
         bucket.download_fileobj(file_name, data)
-        data.seek(0)    # move back to the beginning after writing
+        data.seek(0)  # move back to the beginning after writing
         obj = reader(data, **kwargs)
 
     return obj
