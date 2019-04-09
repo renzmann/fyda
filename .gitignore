@@ -5,3 +5,4 @@ doc/_build/*
 *.ini
 dist/*
 input/*
+.idea/*
