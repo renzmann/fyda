@@ -55,7 +55,7 @@ class ProjectConfig(ConfigParser):
     def __init__(self, make_config=True):
         super().__init__()
 
-        if (not os.path.exists(_get_conf())) and (make_config):
+        if (not os.path.exists(_get_conf())) and make_config:
             self.add_section('directories')
             self.add_section('data')
             _write_config(self)
@@ -69,9 +69,6 @@ class DataBank:
 
     Parameters
     ----------
-    conf_path : str
-        Path to the ``.fydarc``. If none is provided, uses
-        :meth:`options.locate_config`.
     root : str
         Path to root data folder. If none is provided, uses the default from
         ``.fydarc`` given by the ``conf_path`` parameter.
@@ -95,7 +92,7 @@ class DataBank:
     :meth:`DataBank.refresh`
     """
 
-    def __init__(self, conf_path=_get_conf(), root=None):
+    def __init__(self, root=None):
 
         if root is None:
             pc = ProjectConfig()
@@ -138,7 +135,7 @@ class DataBank:
             filename = os.path.join(self._root, input_string)
 
         try:  # Then see if it is a path relative to data root
-            with open(filename) as f:  # noqa: F841
+            with open(filename):
                 pass
         except (FileNotFoundError, PermissionError):
             # Otherwise, just take original string
@@ -160,13 +157,15 @@ class DataBank:
             If provided, maps shortcut to this callable whenever the data is
             called to open. If none is provided, a reader will be automatically
             assigned.
+        error : str
+            If set to 'ignore', ignores any errors when picking a file reader.
         """
 
         if shortcut is None:
             shortcut = filename
         if reader is None:
-            reader = _pick_reader(filename, error='ignore')
-        if (shortcut in self._reader_map) & (options.SHOW_WARNINGS):
+            reader = _pick_reader(filename, error=error)
+        if (shortcut in self._reader_map) & options.SHOW_WARNINGS:
             warnings.warn('Non-unique file shortcut "%s" overwritten!'
                           % shortcut)
 
@@ -331,9 +330,9 @@ def _write_config(config):
 # -----------------------------------------------------------------------------
 # Public library
 # -----------------------------------------------------------------------------
-def data_path(shortcut, conf_path=_get_conf(), root=None):
+def data_path(shortcut, root=None):
 
-    db = DataBank(conf_path, root)
+    db = DataBank(root)
 
     if shortcut in db.shortcuts:
         return db.shortcuts[shortcut]
@@ -352,7 +351,7 @@ def load(file_name):
 
     Parameters
     ----------
-    file_names : str or path-like
+    file_name : str or path-like
         Files to load. These can be shortcuts or file paths.
     """
 
