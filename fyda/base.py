@@ -107,6 +107,7 @@ class DataBank:
         self._filetree = self.root_to_dict(self._root)
 
     # We access attributes this way because dict is mutable
+    # TODO: any way to warn people when they try to change these?
     @property
     def tree(self):
         return self._filetree.copy()
@@ -164,14 +165,19 @@ class DataBank:
             If set to 'ignore', ignores any errors when picking a file reader.
         """
 
+        # TODO ``determine_shortcut`` logic that double checks all names and
+        #   adapts to duplicates.
         if shortcut is None:
             shortcut = filename
+        # TODO if shortcut is not None and shortcut already exists, determine
+        #   what to do.
         if reader is None:
             reader = _pick_reader(filename, error=error)
         if (shortcut in self._reader_map) & options.SHOW_WARNINGS:
             warnings.warn('Non-unique file shortcut "%s" overwritten!'
                           % shortcut)
 
+        # TODO move update logic?
         self._reader_map.update({shortcut: reader})
         self._data.update({shortcut: filename})
 
@@ -230,10 +236,12 @@ class DataBank:
 
             for f in filenames:
                 filepath = os.path.join(root, f)
+                # TODO this logic should move to deposit function
                 shortcut = os.path.splitext(f)[0]
                 directory[dn].update({shortcut: f})
 
                 if auto_deposit:
+                    # TODO pass ``None`` for shortcut here. Let deposit figure
                     self.deposit(filepath, shortcut=shortcut)
 
             if dirnames:
