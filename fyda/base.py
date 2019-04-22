@@ -104,7 +104,15 @@ class DataBank:
             self._root = root
         self._data = {}
         self._reader_map = {}
+        self._forbid = {}
         self._filetree = self.root_to_dict(self._root)
+
+        # TODO : ``forbidden`` shortcut information.
+        #   forbid = {
+        #       shortcut_1: {encoding_level: n,
+        #                    in_use: [user_0, ... , user_n]}
+        #       shortcut_2: ...
+        #   }
 
     # We access attributes this way because dict is mutable
     # TODO: any way to warn people when they try to change these?
@@ -147,13 +155,31 @@ class DataBank:
 
         return filename
 
-    def deposit(self, filename, shortcut=None, reader=None, error='raise'):
+    def determine_shortcut(self, filepath):
+
+        # Base name without extension
+        default = os.path.splitext(os.path.basename(filepath))[0]
+
+        if default not in self._forbid:
+            return default
+
+        encode_level = self._forbid[default]['encode_level']
+        users = self._forbid[default]['in_use']
+        shortcut = _encode_shortcut(filepath, encode_level)
+
+        if shortcut not in users:
+            return shortcut
+
+        # TODO remap shortcuts when we have a previous user
+
+
+    def deposit(self, filepath, shortcut=None, reader=None, error='raise'):
         """
         Store a shortcut and reader reference for the given file name.
 
         Parameters
         ----------
-        filename : str
+        filepath : str
             Name of the file to store.
         shortcut : str
             Shortcut to deposit.
@@ -165,21 +191,23 @@ class DataBank:
             If set to 'ignore', ignores any errors when picking a file reader.
         """
 
+        # TODO check that file we are adding is new
+
         # TODO ``determine_shortcut`` logic that double checks all names and
         #   adapts to duplicates.
         if shortcut is None:
-            shortcut = filename
+            shortcut = filepath
         # TODO if shortcut is not None and shortcut already exists, determine
         #   what to do.
         if reader is None:
-            reader = _pick_reader(filename, error=error)
+            reader = _pick_reader(filepath, error=error)
         if (shortcut in self._reader_map) & options.SHOW_WARNINGS:
             warnings.warn('Non-unique file shortcut "%s" overwritten!'
                           % shortcut)
 
         # TODO move update logic?
         self._reader_map.update({shortcut: reader})
-        self._data.update({shortcut: filename})
+        self._data.update({shortcut: filepath})
 
     def withdraw(self, data_name, reader=None):
         """
@@ -299,6 +327,29 @@ def _decode(reader, filename):
     except UnicodeDecodeError:
         with open(filename, 'rb') as fileobj:
             return reader(fileobj)
+
+
+def _encode_shortcut(filepath, encoding_level=0):
+    """Get shortcut from filepath at given encoding level. 0 = base,
+    1 = base.ext, 2 = folder/base.ext, 3 = folder_up/folder/base.ext,
+    ... etc."""
+
+    if not isinstance(encoding_level, int):
+        raise ValueError("Encoding level for shortcut not understood.")
+
+    shortcut = os.path.basename(filepath)
+    upstream = os.path.dirname(filepath)
+
+    for i in range(encoding_level):
+
+        # Move shortcut up one folder
+        upfolder = os.path.basename(upstream)
+        shortcut = os.path.join(upfolder, shortcut)
+
+        # Move upstream up a folder
+        upstream = os.path.dirname(upstream)
+
+    return shortcut
 
 
 def _pick_reader(filename, error='raise'):
