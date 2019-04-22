@@ -335,6 +335,23 @@ def _write_config(config):
 # Public library
 # -----------------------------------------------------------------------------
 def data_path(shortcut, root=None):
+    """
+    Return the absolute path to the file referenced by ``shortcut``.
+
+    Parameters
+    ----------
+    shortcut : str
+        Shortcut reference for the file.
+    root : str
+        Root directory to use with :class:`DataBank`.
+
+    Returns
+    -------
+    path : str
+        Absolute path to file.
+
+    """
+
     db = DataBank(root)
 
     if shortcut in db.shortcuts:
