@@ -97,12 +97,17 @@ class DataBank:
 
         if root is None:
             pc = ProjectConfig()
-            self._root = os.path.abspath(pc['directories']['root'])
+
+            try:
+                self._root = os.path.abspath(pc['directories']['root'])
+            except KeyError:
+                self._root = os.path.join(os.getcwd(), 'data')
         else:
             self._root = root
         self._data = {}
         self._reader_map = {}
         self._forbid = {}
+        self._tree = self.root_to_dict(self._root)
         # TODO rcusers information to avoid overwriting values set in config
 
     # We access attributes this way because dict is mutable
@@ -190,10 +195,17 @@ class DataBank:
 
         # Update user list
         default = default_shortcut(filepath)
-        new_userlist = self._forbid[default]['in_use'] + [shortcut]
+        # TODO make this better?
+        if default in self._forbid:
+            new_userlist = self._forbid[default]['in_use'] + [shortcut]
+        else:
+            new_userlist = [shortcut]
 
         # Deposit new information
-        self._forbid.update({default: new_userlist})
+        self._forbid.update({
+            default: {
+                'encode_level': self.encoding_level(default),
+                'in_use': new_userlist}})
         self._reader_map.update({shortcut: reader})
         self._data.update({shortcut: filepath})
 
@@ -230,6 +242,16 @@ class DataBank:
             return shortcut, False
 
         return default, True
+
+    def encoding_level(self, fileref):
+        """Get the encoding level for given file reference."""
+
+        default = default_shortcut(fileref)
+
+        if default in self._forbid:
+            return self._forbid[default]['encode_level']
+
+        return 0
 
     def rebase_shortcuts(self, filepath):
         """
@@ -391,6 +413,9 @@ def _encode_shortcut(filepath, encoding_level=0):
 
     if not isinstance(encoding_level, int):
         raise ValueError("Encoding level for shortcut not understood.")
+    elif encoding_level < 0:
+        raise ValueError("Encoding level for shortcut must be a positive "
+                         "integer.")
 
     shortcut = os.path.basename(filepath)
     upstream = os.path.dirname(filepath)
