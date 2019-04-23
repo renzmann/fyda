@@ -6,3 +6,4 @@ doc/_build/*
 dist/*
 input/*
 .idea/*
+legacy_docs/*
