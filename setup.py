@@ -1,16 +1,21 @@
 """Setup."""
 from setuptools import setup
 
+
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
+
+
 setup(
     name='fyda',
     packages=['fyda'],
-    version='0.4.0',
+    version='0.4.1',
     license='MIT',
     description='General data interface for Python 3',
+    long_description=long_description,
     author='Robert Enzmann',
     author_email='runningwithrobb@gmail.com',
     url='https://github.com/renzmann/fyda',
-    download_url='https://github.com/user/reponame/archive/v_01.tar.gz',
     keywords=['Python', 'Data', 'Interface', 'Data Science', 'python 3'],
     install_requires=[
         'numpy',
