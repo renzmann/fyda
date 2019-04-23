@@ -288,8 +288,11 @@ class DataBank:
                 file_string = self._data.pop(user)
                 new_shortcut = _encode_shortcut(file_string, encode_level)
                 self._data[new_shortcut] = file_string
+                users = list(set(users) - {user}) + [new_shortcut]
 
             conflict_exists = shortcut in users
+
+        self._forbid[default]['in_use'] = users
 
     def root_to_dict(self, root, auto_deposit=True):
         """
@@ -416,11 +419,13 @@ def _encode_shortcut(filepath, encoding_level=0):
     elif encoding_level < 0:
         raise ValueError("Encoding level for shortcut must be a positive "
                          "integer.")
+    elif encoding_level == 0:
+        return default_shortcut(filepath)
 
     shortcut = os.path.basename(filepath)
     upstream = os.path.dirname(filepath)
 
-    for i in range(encoding_level):
+    for i in range(encoding_level - 1):
 
         # Move shortcut up one folder
         upfolder = os.path.basename(upstream)

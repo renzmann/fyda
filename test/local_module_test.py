@@ -32,6 +32,8 @@ def fydarc_checks():
     for val in db.shortcuts:
         print(val, db.shortcuts[val])
 
+    print('\n')
+
     for val in db._forbid:
         print(val, db._forbid[val])
 
