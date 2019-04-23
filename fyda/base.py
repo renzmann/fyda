@@ -16,7 +16,6 @@ from .errorhandling import NoShortcutError
 
 
 # TODO
-# Prefix assignment for duplicate names. Get rid of nasty warning.
 # ?? Option values for behavior with duplicates. (Overwrite/keep/rename)
 # Sanity checks for file assignment in .fydarc. Possibly get flexible there.
 # Future idea: some way to search through files/shortcuts; like fuzzy search
@@ -90,9 +89,10 @@ class DataBank:
     Methods
     -------
     :meth:`DataBank.deposit`
-    :meth:`DataBank.withdraw`
+    :meth:`DataBank.determine_shortcut`
+    :meth:`DataBank.rebase_shortcuts`
     :meth:`DataBank.root_to_dict`
-    :meth:`DataBank.refresh`
+    :meth:`DataBank.withdraw`
     """
 
     def __init__(self, root=None):
@@ -105,20 +105,13 @@ class DataBank:
         self._data = {}
         self._reader_map = {}
         self._forbid = {}
-        self._filetree = self.root_to_dict(self._root)
-
-        # TODO : ``forbidden`` shortcut information.
-        #   forbid = {
-        #       shortcut_1: {encoding_level: n,
-        #                    in_use: [user_0, ... , user_n]}
-        #       shortcut_2: ...
-        #   }
+        # TODO rcusers information to avoid overwriting values set in config
 
     # We access attributes this way because dict is mutable
     # TODO: any way to warn people when they try to change these?
     @property
     def tree(self):
-        return self._filetree.copy()
+        return self.root_to_dict(self._root)
 
     @property
     def shortcuts(self):
@@ -155,23 +148,10 @@ class DataBank:
 
         return filename
 
-    def determine_shortcut(self, filepath):
+    def _kill_check(self, filepath):
+        """Use to stop a process if filepath is already in data dict."""
 
-        # Base name without extension
-        default = os.path.splitext(os.path.basename(filepath))[0]
-
-        if default not in self._forbid:
-            return default
-
-        encode_level = self._forbid[default]['encode_level']
-        users = self._forbid[default]['in_use']
-        shortcut = _encode_shortcut(filepath, encode_level)
-
-        if shortcut not in users:
-            return shortcut
-
-        # TODO remap shortcuts when we have a previous user
-
+        return os.path.abspath(filepath) in self._data.values()
 
     def deposit(self, filepath, shortcut=None, reader=None, error='raise'):
         """
@@ -191,23 +171,150 @@ class DataBank:
             If set to 'ignore', ignores any errors when picking a file reader.
         """
 
-        # TODO check that file we are adding is new
+        # If we don't check, rebase recursion will ruin everything
+        if self._kill_check(filepath):
+            warnings.warn('Attempted to add already existing file "{}" to '
+                          'DataBank. Killing process.'.format(filepath))
+            return
 
-        # TODO ``determine_shortcut`` logic that double checks all names and
-        #   adapts to duplicates.
+        # Shortcut determination
         if shortcut is None:
-            shortcut = filepath
-        # TODO if shortcut is not None and shortcut already exists, determine
-        #   what to do.
+            shortcut, rebase = self.determine_shortcut(filepath)
+            while rebase:
+                self.rebase_shortcuts(filepath)
+                shortcut, rebase = self.determine_shortcut(filepath)
+        elif shortcut in self.shortcuts.keys():
+            raise ValueError('Shortcut `{}` already in use.'.format(filepath))
+
+        # Reader determination
         if reader is None:
             reader = _pick_reader(filepath, error=error)
-        if (shortcut in self._reader_map) & options.SHOW_WARNINGS:
-            warnings.warn('Non-unique file shortcut "%s" overwritten!'
-                          % shortcut)
 
-        # TODO move update logic?
+        # Update user list
+        default = default_shortcut(filepath)
+        new_userlist = self._forbid[default]['in_use'] + [shortcut]
+
+        # Deposit new information
+        self._forbid.update({default: new_userlist})
         self._reader_map.update({shortcut: reader})
         self._data.update({shortcut: filepath})
+
+    def determine_shortcut(self, filepath):
+        """
+        Get the shortcut for a filepath based on already deposited values.
+
+        Parameters
+        ----------
+        filepath : str
+            Absolute path to the file in question.
+
+        Returns
+        -------
+        shortcut : str
+            String value to use for shortcut
+        rebase : bool
+            Whether or not we need to rebase the users of the default shortcut
+            code. This happens only if the current encoding level would create
+            a new duplicate value.
+
+        """
+        # Base name without extension
+        default = default_shortcut(filepath)
+
+        if default not in self._forbid:
+            return default, False
+
+        encode_level = self._forbid[default]['encode_level']
+        users = self._forbid[default]['in_use']
+        shortcut = _encode_shortcut(filepath, encode_level)
+
+        if shortcut not in users:
+            return shortcut, False
+
+        return default, True
+
+    def rebase_shortcuts(self, filepath):
+        """
+        Detect if the filepath will cause a duplication conflict, and rebase if
+        necessary.
+
+        Parameters
+        ----------
+        filepath : str
+            Absolute path to the file in question.
+        """
+
+        if self._kill_check(filepath):
+            warnings.warn('Attempted to add already existing file "{}" to '
+                          'DataBank. Killing process.'.format(filepath))
+            return
+
+        default = default_shortcut(filepath)
+        encode_level = self._forbid[default]['encode_level']
+        users = self._forbid[default]['in_use']
+        shortcut = _encode_shortcut(filepath, encode_level)
+        conflict_exists = shortcut in users
+
+        # TODO preserve .fydarc users. i.e. don't rebase anything set by the
+        #   rc file.
+
+        while conflict_exists:
+
+            encode_level += 1
+            self._forbid[default]['encode_level'] = encode_level
+
+            for user in users:
+
+                file_string = self._data.pop(user)
+                new_shortcut = _encode_shortcut(file_string, encode_level)
+                self._data[new_shortcut] = file_string
+
+            conflict_exists = shortcut in users
+
+    def root_to_dict(self, root, auto_deposit=True):
+        """
+        Recursively convert root folder to native Python dictionary.
+
+        Parameters
+        ----------
+        root : str or path-like
+            Path to root folder.
+        auto_deposit : bool
+            If True, automatically call :meth:`DataBank.deposit` on any files
+            found through the recursion to the ``shortcuts`` dict.
+
+        Notes
+        -----
+        Modified from `this`<https://btmiller.com/2015/03/17/represent-file
+        -structure-as-yaml-with-python.html>_ example by Blake Miller.
+
+        """
+
+        directory = {}
+
+        for root_dir, dirnames, filenames in os.walk(root):
+
+            # Iterate through objects in this directory...
+            dn = os.path.basename(root_dir)
+            directory[dn] = {}
+
+            # If it's a file, set "basename": "abspath to file"
+            for f in filenames:
+                filepath = os.path.join(root, f)
+                directory[dn].update({default_shortcut(f): f})
+
+                if auto_deposit:
+                    self.deposit(filepath)
+
+            # If it's a directory, go down a level and start over
+            if dirnames:
+                for d in dirnames:
+                    directory[dn].update(
+                        self.root_to_dict(os.path.join(root, d)))
+
+            break  # We break here to stop the os.walk from doubling back
+
+        return directory
 
     def withdraw(self, data_name, reader=None):
         """
@@ -236,56 +343,6 @@ class DataBank:
                 reader = _pick_reader(filename)
 
         return _decode(reader, filename)
-
-    def root_to_dict(self, root, auto_deposit=True):
-        """
-        Recursively convert root folder to native Python dictionary.
-
-        Parameters
-        ----------
-        root : str or path-like
-            Path to root folder.
-        auto_deposit : bool
-            If True, automatically call :meth:`DataBank.deposit` on any files
-            found through the recursion to the ``shortcuts`` dict.
-
-        Notes
-        -----
-        Modified from `this`<https://btmiller.com/2015/03/17/represent-file
-        -structure-as-yaml-with-python.html>_ example by Blake Miller.
-
-        """
-
-        directory = {}
-
-        for root_dir, dirnames, filenames in os.walk(root):
-            dn = os.path.basename(root_dir)
-            directory[dn] = {}
-
-            for f in filenames:
-                filepath = os.path.join(root, f)
-                # TODO this logic should move to deposit function
-                shortcut = os.path.splitext(f)[0]
-                directory[dn].update({shortcut: f})
-
-                if auto_deposit:
-                    # TODO pass ``None`` for shortcut here. Let deposit figure
-                    self.deposit(filepath, shortcut=shortcut)
-
-            if dirnames:
-                for d in dirnames:
-                    directory[dn].update(
-                        self.root_to_dict(os.path.join(root, d)))
-
-            break  # We break here to stop the os.walk from doubling back
-
-        return directory
-
-    def refresh(self):
-        """Rerun :meth:`DataBank.root_to_dict` to refresh file tree and deposit
-        any new data."""
-
-        self._filetree = self.root_to_dict(self._root)
 
 
 # -----------------------------------------------------------------------------
@@ -408,7 +465,6 @@ def data_path(shortcut, root=None):
     -------
     path : str
         Absolute path to file.
-
     """
 
     db = DataBank(root)
@@ -422,6 +478,12 @@ def data_path(shortcut, root=None):
                                 pc['data'][shortcut])
         except KeyError:
             raise NoShortcutError(shortcut)
+
+
+def default_shortcut(filepath):
+    """Get the default shortcut name for a file."""
+
+    return os.path.splitext(os.path.basename(filepath))[0]
 
 
 def load(file_name):
