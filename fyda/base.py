@@ -26,8 +26,6 @@ from .errorhandling import NoShortcutError
 # -----------------------------------------------------------------------------
 def _get_conf():  # Allows the user to change configuration path dynamically
 
-    importlib.reload(options)
-
     if not options.CONFIG_LOCATION:
         return options.locate_config()
 
