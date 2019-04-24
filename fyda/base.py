@@ -1,5 +1,4 @@
 """Base module for fyda."""
-import importlib
 import json
 import os
 import pickle
@@ -72,25 +71,6 @@ class DataBank:
     root : str
         Path to root data folder. If none is provided, uses the default from
         ``.fydarc`` given by the ``conf_path`` parameter.
-
-    Attributes
-    ----------
-    shortcuts : dict
-        A mapping of shortcut values to their respective file objects.
-    tree : dict
-        The file tree representation of the ``root`` folder. Each folder can be
-        accessed as successive ``dict`` keys, e.g.
-        tree['level`']['level2'][...].
-    readers : dict
-        Maps between shortcuts and the required data reader for that file.
-
-    Methods
-    -------
-    :meth:`DataBank.deposit`
-    :meth:`DataBank.determine_shortcut`
-    :meth:`DataBank.rebase_shortcuts`
-    :meth:`DataBank.root_to_dict`
-    :meth:`DataBank.withdraw`
     """
 
     def __init__(self, root=None):
@@ -114,14 +94,17 @@ class DataBank:
     # TODO: any way to warn people when they try to change these?
     @property
     def tree(self):
+        """Full tree of data root directory in python dictionary form."""
         return self.root_to_dict(self._root)
 
     @property
     def shortcuts(self):
+        """Mapping of shortcuts to absolute paths."""
         return self._data.copy()
 
     @property
     def readers(self):
+        """Mapping of shortcuts to their respective readers."""
         return self._reader_map.copy()
 
     def _determine_path(self, input_string):
@@ -194,7 +177,7 @@ class DataBank:
             reader = _pick_reader(filepath, error=error)
 
         # Update user list
-        default = default_shortcut(filepath)
+        default = _default_shortcut(filepath)
         # TODO make this better?
         if default in self._forbid:
             new_userlist = self._forbid[default]['in_use'] + [shortcut]
@@ -229,7 +212,7 @@ class DataBank:
 
         """
         # Base name without extension
-        default = default_shortcut(filepath)
+        default = _default_shortcut(filepath)
 
         if default not in self._forbid:
             return default, False
@@ -246,7 +229,7 @@ class DataBank:
     def encoding_level(self, fileref):
         """Get the encoding level for given file reference."""
 
-        default = default_shortcut(fileref)
+        default = _default_shortcut(fileref)
 
         if default in self._forbid:
             return self._forbid[default]['encode_level']
@@ -269,7 +252,7 @@ class DataBank:
                           'DataBank. Killing process.'.format(filepath))
             return
 
-        default = default_shortcut(filepath)
+        default = _default_shortcut(filepath)
         encode_level = self._forbid[default]['encode_level']
         users = self._forbid[default]['in_use']
         shortcut = _encode_shortcut(filepath, encode_level)
@@ -308,8 +291,8 @@ class DataBank:
 
         Notes
         -----
-        Modified from `this`<https://btmiller.com/2015/03/17/represent-file
-        -structure-as-yaml-with-python.html>_ example by Blake Miller.
+        Modified from `this`<https://btmiller.com/2015/03/17/represent-file-structure-as-yaml-with-python.html>_
+        example by Blake Miller.
 
         """
 
@@ -324,7 +307,7 @@ class DataBank:
             # If it's a file, set "basename": "abspath to file"
             for f in filenames:
                 filepath = os.path.join(root, f)
-                directory[dn].update({default_shortcut(f): f})
+                directory[dn].update({_default_shortcut(f): f})
 
                 if auto_deposit:
                     self.deposit(filepath)
@@ -409,6 +392,12 @@ def _decode(reader, filename):
             return reader(fileobj)
 
 
+def _default_shortcut(filepath):
+    """Get the default shortcut name for a file."""
+
+    return os.path.splitext(os.path.basename(filepath))[0]
+
+
 def _encode_shortcut(filepath, encoding_level=0):
     """Get shortcut from filepath at given encoding level. 0 = base,
     1 = base.ext, 2 = folder/base.ext, 3 = folder_up/folder/base.ext,
@@ -420,7 +409,7 @@ def _encode_shortcut(filepath, encoding_level=0):
         raise ValueError("Encoding level for shortcut must be a positive "
                          "integer.")
     elif encoding_level == 0:
-        return default_shortcut(filepath)
+        return _default_shortcut(filepath)
 
     shortcut = os.path.basename(filepath)
     upstream = os.path.dirname(filepath)
@@ -506,12 +495,6 @@ def data_path(shortcut, root=None):
                                 pc['data'][shortcut])
         except KeyError:
             raise NoShortcutError(shortcut)
-
-
-def default_shortcut(filepath):
-    """Get the default shortcut name for a file."""
-
-    return os.path.splitext(os.path.basename(filepath))[0]
 
 
 def load(file_name):
