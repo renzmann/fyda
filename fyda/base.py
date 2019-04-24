@@ -1,5 +1,4 @@
 """Base module for fyda."""
-import importlib
 import json
 import os
 import pickle
@@ -95,14 +94,17 @@ class DataBank:
     # TODO: any way to warn people when they try to change these?
     @property
     def tree(self):
+        """Full tree of data root directory in python dictionary form."""
         return self.root_to_dict(self._root)
 
     @property
     def shortcuts(self):
+        """Mapping of shortcuts to absolute paths."""
         return self._data.copy()
 
     @property
     def readers(self):
+        """Mapping of shortcuts to their respective readers."""
         return self._reader_map.copy()
 
     def _determine_path(self, input_string):
