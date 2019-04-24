@@ -72,25 +72,6 @@ class DataBank:
     root : str
         Path to root data folder. If none is provided, uses the default from
         ``.fydarc`` given by the ``conf_path`` parameter.
-
-    Attributes
-    ----------
-    shortcuts : dict
-        A mapping of shortcut values to their respective file objects.
-    tree : dict
-        The file tree representation of the ``root`` folder. Each folder can be
-        accessed as successive ``dict`` keys, e.g.
-        tree['level`']['level2'][...].
-    readers : dict
-        Maps between shortcuts and the required data reader for that file.
-
-    Methods
-    -------
-    :meth:`DataBank.deposit`
-    :meth:`DataBank.determine_shortcut`
-    :meth:`DataBank.rebase_shortcuts`
-    :meth:`DataBank.root_to_dict`
-    :meth:`DataBank.withdraw`
     """
 
     def __init__(self, root=None):
@@ -308,8 +289,8 @@ class DataBank:
 
         Notes
         -----
-        Modified from `this`<https://btmiller.com/2015/03/17/represent-file
-        -structure-as-yaml-with-python.html>_ example by Blake Miller.
+        Modified from `this`<https://btmiller.com/2015/03/17/represent-file-structure-as-yaml-with-python.html>_
+        example by Blake Miller.
 
         """
 
