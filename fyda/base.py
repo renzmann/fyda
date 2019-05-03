@@ -18,6 +18,8 @@ from .errorhandling import NoShortcutError
 # ?? Option values for behavior with duplicates. (Overwrite/keep/rename)
 # Sanity checks for file assignment in .fydarc. Possibly get flexible there.
 # Future idea: some way to search through files/shortcuts; like fuzzy search
+# Integrate cloud-based file loading directly into load(). i.e. point ``root``
+#   to a bucket, and have fyda work its magic from there.
 
 
 # -----------------------------------------------------------------------------
