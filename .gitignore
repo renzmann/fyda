@@ -8,3 +8,4 @@ build/*
 input/*
 .idea/*
 legacy_docs/*
+legacy/*
