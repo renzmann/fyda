@@ -312,7 +312,7 @@ class DataBank:
                 directory[dn].update({_default_shortcut(f): f})
 
                 if auto_deposit:
-                    self.deposit(filepath)
+                    self.deposit(filepath, error='ignore')
 
             # If it's a directory, go down a level and start over
             if dirnames:
