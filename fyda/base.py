@@ -20,6 +20,8 @@ from .errorhandling import NoShortcutError
 # Future idea: some way to search through files/shortcuts; like fuzzy search
 # Integrate cloud-based file loading directly into load(). i.e. point ``root``
 #   to a bucket, and have fyda work its magic from there.
+# Additional keyword arguments in ``load`` and ``withdraw``, like sheet_name.
+# Better path handling in .fydarc. e.g. when quotation marks appear in the path
 
 
 # -----------------------------------------------------------------------------
@@ -75,7 +77,7 @@ class DataBank:
         ``.fydarc`` given by the ``conf_path`` parameter.
     """
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, error='ignore'):
 
         if root is None:
             pc = ProjectConfig()
@@ -89,7 +91,7 @@ class DataBank:
         self._data = {}
         self._reader_map = {}
         self._forbid = {}
-        self._tree = self.root_to_dict(self._root)
+        self._tree = self.root_to_dict(self._root, error=error)
         # TODO rcusers information to avoid overwriting values set in config
 
     # We access attributes this way because dict is mutable
@@ -279,7 +281,7 @@ class DataBank:
 
         self._forbid[default]['in_use'] = users
 
-    def root_to_dict(self, root, auto_deposit=True):
+    def root_to_dict(self, root, auto_deposit=True, error='raise'):
         """
         Recursively convert root folder to native Python dictionary.
 
@@ -290,6 +292,9 @@ class DataBank:
         auto_deposit : bool
             If True, automatically call :meth:`DataBank.deposit` on any files
             found through the recursion to the ``shortcuts`` dict.
+        error : str, {'raise', 'ignore'}
+            Whether to ignore filetype errors or raise a
+            ``NotImplementedError``.
 
         Notes
         -----
@@ -312,13 +317,13 @@ class DataBank:
                 directory[dn].update({_default_shortcut(f): f})
 
                 if auto_deposit:
-                    self.deposit(filepath)
+                    self.deposit(filepath, error=error)
 
             # If it's a directory, go down a level and start over
             if dirnames:
                 for d in dirnames:
                     directory[dn].update(
-                        self.root_to_dict(os.path.join(root, d)))
+                        self.root_to_dict(os.path.join(root, d), error=error))
 
             break  # We break here to stop the os.walk from doubling back
 
