@@ -511,14 +511,14 @@ def dir_path(shortcut, root=None):
     Parameters
     ----------
     shortcut : str
-        Shortcut reference for the file.
+        Shortcut reference for the folder/directory.
     root : str
         Root directory to use with :class:`DataBank`.
 
     Returns
     -------
     path : str
-        Absolute path to file.
+        Absolute path to directory.
     """
 
     db = DataBank(root)
