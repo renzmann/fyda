@@ -494,7 +494,7 @@ def data_path(shortcut, root=None):
     db = DataBank(root)
 
     if shortcut in db.shortcuts:
-        return db.shortcuts[shortcut]
+        return os.path.abspath(db.shortcuts[shortcut])
     else:
         try:
             pc = ProjectConfig()
@@ -502,6 +502,33 @@ def data_path(shortcut, root=None):
                                 pc['data'][shortcut])
         except KeyError:
             raise NoShortcutError(shortcut)
+
+
+def dir_path(shortcut, root=None):
+    """
+    Return absolute path to the directory referenced by ``shortcut``.
+
+    Parameters
+    ----------
+    shortcut : str
+        Shortcut reference for the file.
+    root : str
+        Root directory to use with :class:`DataBank`.
+
+    Returns
+    -------
+    path : str
+        Absolute path to file.
+    """
+
+    db = DataBank(root)
+    pc = ProjectConfig()
+
+    path = pc['directories'][shortcut]
+    if path[0] == '~':
+        return os.path.abspath(os.path.expanduser(path))
+
+    return os.path.abspath(os.path.join(db._root, path))
 
 
 def load(file_name):
