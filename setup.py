@@ -13,6 +13,7 @@ setup(
     license='MIT',
     description='General data interface for Python 3',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Robert Enzmann',
     author_email='runningwithrobb@gmail.com',
     url='https://github.com/renzmann/fyda',
