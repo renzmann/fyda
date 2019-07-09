@@ -9,7 +9,7 @@ with open('README.md', 'r') as fh:
 setup(
     name='fyda',
     packages=['fyda'],
-    version='0.4.1',
+    version='0.4.2',
     license='MIT',
     description='General data interface for Python 3',
     long_description=long_description,
