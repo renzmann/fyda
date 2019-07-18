@@ -4,9 +4,9 @@ import os
 import pickle
 import warnings
 from configparser import ConfigParser
+import yaml
 from io import BytesIO
 
-import boto3
 import numpy as np
 import pandas as pd
 
@@ -20,9 +20,10 @@ from .errorhandling import NoShortcutError
 # Future idea: some way to search through files/shortcuts; like fuzzy search
 # Integrate cloud-based file loading directly into load(). i.e. point ``root``
 #   to a bucket, and have fyda work its magic from there.
-# Additional keyword arguments in ``load`` and ``withdraw``, like sheet_name.
+# Additional keyword arguments in .fydarc
 # Better path handling in .fydarc. e.g. when quotation marks appear in the path
-
+# Update displayed shortcuts using values from .fydarc
+# Go around and fully deprecate ProjectConfig
 
 # -----------------------------------------------------------------------------
 # Constants
@@ -33,6 +34,11 @@ def _get_conf():  # Allows the user to change configuration path dynamically
         return options.locate_config()
 
     return options.CONFIG_LOCATION
+
+
+# TODO mention these in docs about writing .fydarc
+LOCATION = 0     # For accessing filepaths under "data" in config
+KWARGS = 1       # For accessing keyword arguments under "data" in config
 
 
 # -----------------------------------------------------------------------------
@@ -80,7 +86,7 @@ class DataBank:
     def __init__(self, root=None, error='ignore'):
 
         if root is None:
-            pc = ProjectConfig()
+            pc = _load_config()
 
             try:
                 self._root = os.path.abspath(
@@ -116,11 +122,11 @@ class DataBank:
     def _determine_path(self, input_string):
         """Determine the actual file location, based on input string."""
 
-        pc = ProjectConfig()
+        pc = _load_config()
 
         # .fydarc takes priority
         if input_string in pc['data'].keys():
-            return os.path.join(self._root, pc['data'][input_string])
+            return os.path.join(self._root, pc['data'][input_string][LOCATION])
 
         try:  # Second check shortcuts
             filename = self.shortcuts[input_string]
@@ -331,7 +337,7 @@ class DataBank:
 
         return directory
 
-    def withdraw(self, data_name, reader=None):
+    def withdraw(self, data_name, reader=None, kwarg_update_method='update', **kwargs):
         """
         Automatically load data, given shortcut to file.
 
@@ -342,6 +348,7 @@ class DataBank:
         reader : callable, (optional)
             A function that takes either a string or object with a "read"
             method.
+        kwarg_update_method : str, optional {'update', 'overwrite', 'rc'}
 
         Returns
         -------
@@ -351,13 +358,23 @@ class DataBank:
 
         filename = self._determine_path(data_name)
 
+        if kwarg_update_method != 'overwrite':
+            try:
+                rckwargs = _load_config()['data'][data_name][KWARGS]
+            except IndexError:
+                rckwargs = {}
+            if kwarg_update_method == 'update':
+                kwargs.update(rckwargs)
+            elif kwarg_update_method == 'rc':
+                kwargs = rckwargs
+
         if reader is None:
             try:
                 reader = self.readers[data_name]
             except KeyError:
                 reader = _pick_reader(filename)
 
-        return _decode(reader, filename)
+        return _decode(reader, filename, **kwargs)
 
 
 # -----------------------------------------------------------------------------
@@ -368,8 +385,8 @@ def _check_bucket(bucket_name):
 
     if bucket_name is None:
         try:
-            pc = ProjectConfig()
-            bucket_name = pc['directories']['s3_bucket']
+            pc = _load_config()
+            bucket_name = pc['directories']['s3_bucket'][LOCATION]
         except KeyError:
             msg = ("Can't determine s3 bucket name. Either pass the "
                    "bucket_name explicitly, or add an s3_bucket "
@@ -379,26 +396,26 @@ def _check_bucket(bucket_name):
     return bucket_name
 
 
-def _decode(reader, filename):
+def _decode(reader, filename, **kwargs):
     """Successively try different methods to open ``filename`` with
     ``reader``."""
 
     try:  # First check if the reader is an open ``read`` method.
-        return reader()
+        return reader(**kwargs)
     except TypeError:
         pass
 
     try:  # Next possibility is that the reader just needs a string reference
-        return reader(filename)
+        return reader(filename, **kwargs)
     except TypeError:
         pass
 
     try:  # Finally, check if we can open the string reference to read.
         with open(filename, 'r') as fileobj:
-            return reader(fileobj)
+            return reader(fileobj, **kwargs)
     except UnicodeDecodeError:
         with open(filename, 'rb') as fileobj:
-            return reader(fileobj)
+            return reader(fileobj, **kwargs)
 
 
 def _default_shortcut(filepath):
@@ -433,6 +450,18 @@ def _encode_shortcut(filepath, encoding_level=0):
         upstream = os.path.dirname(upstream)
 
     return shortcut
+
+
+def _load_config(filepath=None):
+    """Return fyda configuration file ('.fydarc') using YAML."""
+
+    if filepath is None:
+        filepath = _get_conf()
+
+    with open(filepath, 'r') as stream:
+        conf = yaml.safe_load(stream)
+
+    return conf
 
 
 def _pick_reader(filename, error='raise'):
@@ -499,9 +528,9 @@ def data_path(shortcut, root=None):
         return os.path.abspath(db.shortcuts[shortcut])
     else:
         try:
-            pc = ProjectConfig()
-            return os.path.join(pc['directories']['root'],
-                                pc['data'][shortcut])
+            pc = _load_config()
+            return os.path.join(pc['directories']['root'][LOCATION],
+                                pc['data'][shortcut][LOCATION])
         except KeyError:
             raise NoShortcutError(shortcut)
 
@@ -524,16 +553,16 @@ def dir_path(shortcut, root=None):
     """
 
     db = DataBank(root)
-    pc = ProjectConfig()
+    pc = _load_config()
 
-    path = pc['directories'][shortcut]
+    path = pc['directories'][shortcut][LOCATION]
     if path[0] == '~':
         return os.path.abspath(os.path.expanduser(path))
 
     return os.path.abspath(os.path.join(db._root, path))
 
 
-def load(file_name):
+def load(file_name, **kwargs):
     """
     Load data intelligently.
 
@@ -544,7 +573,7 @@ def load(file_name):
     """
 
     db = DataBank()
-    return db.withdraw(file_name)
+    return db.withdraw(file_name, **kwargs)
 
 
 def load_s3(file_name, bucket_name=None, reader=None, **kwargs):
@@ -569,7 +598,7 @@ def load_s3(file_name, bucket_name=None, reader=None, **kwargs):
     data
         As read by reader object
     """
-
+    import boto3
     bucket_name = _check_bucket(bucket_name)
 
     if reader is None:
