@@ -83,7 +83,9 @@ class DataBank:
             pc = ProjectConfig()
 
             try:
-                self._root = os.path.abspath(pc['directories']['root'])
+                self._root = os.path.abspath(
+                        os.path.join(os.path.dirname(_get_conf()),
+                                     pc['directories']['root']))
             except KeyError:
                 self._root = os.path.join(os.getcwd(), 'data')
         else:
