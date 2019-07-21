@@ -337,7 +337,8 @@ class DataBank:
 
         return directory
 
-    def withdraw(self, data_name, reader=None, kwarg_update_method='update', **kwargs):
+    def withdraw(self, data_name, reader=None, kwarg_update_method='update',
+                 **kwargs):
         """
         Automatically load data, given shortcut to file.
 
