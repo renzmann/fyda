@@ -96,6 +96,7 @@ class DataBank:
                 self.root = os.path.join(os.getcwd(), 'data')
         else:
             self.root = root
+        self._root = self.root  # For legacy API support
         self._data = {}
         self._reader_map = {}
         self._forbid = {}
@@ -488,6 +489,12 @@ def _get_data_kwargs(shortcut, config):
         return {}
     else:
         return directory_container[KWARGS]
+
+
+def _load_config(filepath=None):
+    """For legacy support, new function is :meth:`load_config`"""
+
+    return load_config(filepath)
 
 
 def _pick_reader(filename, error='raise'):
