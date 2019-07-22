@@ -364,7 +364,7 @@ class DataBank:
         if kwarg_update_method != 'overwrite':
             try:
                 rckwargs = _get_data_kwargs(data_name, load_config())
-            except IndexError:
+            except (IndexError, KeyError):
                 rckwargs = {}
             if kwarg_update_method == 'update':
                 kwargs.update(rckwargs)
