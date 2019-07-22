@@ -113,6 +113,7 @@ class DataBank:
     @property
     def shortcuts(self):
         """Mapping of shortcuts to absolute paths."""
+        # TODO .fydarc data shortcuts should be in here as well.
         return self._data.copy()
 
     @property
@@ -560,13 +561,14 @@ def data_path(shortcut, root=None):
 
     db = DataBank(root)
 
+    # TODO all this logic should be inside the DataBank
     if shortcut in db.shortcuts:
         return os.path.abspath(db.shortcuts[shortcut])
     else:
         try:
-            pc = load_config()
-            return os.path.join(_get_directory(shortcut, pc),
-                                _get_data_location(shortcut, pc))
+            return os.path.abspath(
+                os.path.join(db.root,
+                             _get_data_location(shortcut, load_config())))
         except KeyError:
             raise NoShortcutError(shortcut)
 
