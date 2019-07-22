@@ -86,20 +86,20 @@ class DataBank:
     def __init__(self, root=None, error='ignore'):
 
         if root is None:
-            pc = _load_config()
+            pc = load_config()
 
             try:
-                self._root = os.path.abspath(
+                self.root = os.path.abspath(
                         os.path.join(os.path.dirname(_get_conf()),
                                      pc['directories']['root']))
             except KeyError:
-                self._root = os.path.join(os.getcwd(), 'data')
+                self.root = os.path.join(os.getcwd(), 'data')
         else:
-            self._root = root
+            self.root = root
         self._data = {}
         self._reader_map = {}
         self._forbid = {}
-        self._tree = self.root_to_dict(self._root, error=error)
+        self._tree = self.root_to_dict(self.root, error=error)
         # TODO rcusers information to avoid overwriting values set in config
 
     # We access attributes this way because dict is mutable
@@ -107,7 +107,7 @@ class DataBank:
     @property
     def tree(self):
         """Full tree of data root directory in python dictionary form."""
-        return self.root_to_dict(self._root)
+        return self.root_to_dict(self.root)
 
     @property
     def shortcuts(self):
@@ -122,11 +122,12 @@ class DataBank:
     def _determine_path(self, input_string):
         """Determine the actual file location, based on input string."""
 
-        pc = _load_config()
+        pc = load_config()
 
         # .fydarc takes priority
         if input_string in pc['data'].keys():
-            return os.path.join(self._root, pc['data'][input_string][LOCATION])
+            return os.path.join(self.root, _get_data_location(input_string,
+                                                              pc))
 
         try:  # Second check shortcuts
             filename = self.shortcuts[input_string]
@@ -135,7 +136,7 @@ class DataBank:
             if os.path.splitext(input_string)[1] == '':
                 raise NoShortcutError(input_string)
 
-            filename = os.path.join(self._root, input_string)
+            filename = os.path.join(self.root, input_string)
 
         try:  # Then see if it is a path relative to data root
             with open(filename):
@@ -361,7 +362,7 @@ class DataBank:
 
         if kwarg_update_method != 'overwrite':
             try:
-                rckwargs = _get_data_kwargs(data_name, _load_config())
+                rckwargs = _get_data_kwargs(data_name, load_config())
             except IndexError:
                 rckwargs = {}
             if kwarg_update_method == 'update':
@@ -386,7 +387,7 @@ def _check_bucket(bucket_name):
 
     if bucket_name is None:
         try:
-            pc = _load_config()
+            pc = load_config()
             bucket_name = pc['directories']['s3_bucket'][LOCATION]
         except KeyError:
             msg = ("Can't determine s3 bucket name. Either pass the "
@@ -489,18 +490,6 @@ def _get_data_kwargs(shortcut, config):
         return directory_container[KWARGS]
 
 
-def _load_config(filepath=None):
-    """Return fyda configuration file ('.fydarc') using YAML."""
-
-    if filepath is None:
-        filepath = _get_conf()
-
-    with open(filepath, 'r') as stream:
-        conf = yaml.safe_load(stream)
-
-    return conf
-
-
 def _pick_reader(filename, error='raise'):
     """Reader selection based on ``filename`` extension."""
 
@@ -568,7 +557,7 @@ def data_path(shortcut, root=None):
         return os.path.abspath(db.shortcuts[shortcut])
     else:
         try:
-            pc = _load_config()
+            pc = load_config()
             return os.path.join(_get_directory(shortcut, pc),
                                 _get_data_location(shortcut, pc))
         except KeyError:
@@ -593,13 +582,13 @@ def dir_path(shortcut, root=None):
     """
 
     db = DataBank(root)
-    pc = _load_config()
+    pc = load_config()
 
-    path = pc['directories'][shortcut][LOCATION]
+    path = _get_directory(shortcut, pc)
     if path[0] == '~':
         return os.path.abspath(os.path.expanduser(path))
 
-    return os.path.abspath(os.path.join(db._root, path))
+    return os.path.abspath(os.path.join(db.root, path))
 
 
 def load(file_name, **kwargs):
@@ -614,6 +603,18 @@ def load(file_name, **kwargs):
 
     db = DataBank()
     return db.withdraw(file_name, **kwargs)
+
+
+def load_config(filepath=None):
+    """Return fyda configuration file ('.fydarc') using YAML."""
+
+    if filepath is None:
+        filepath = _get_conf()
+
+    with open(filepath, 'r') as stream:
+        conf = yaml.safe_load(stream)
+
+    return conf
 
 
 def load_s3(file_name, bucket_name=None, reader=None, **kwargs):
