@@ -528,6 +528,9 @@ def _pick_reader(filename, error='raise'):
     if error == 'ignore':
         return
 
+    # TODO sometimes incorrect shortcut settings get found here, saying
+    #   "extension '' not implemented yet". This kind of error should be found
+    #   earlier than here.
     raise NotImplementedError("Extension '%s' not implemented yet."
                               % extension)
 
