@@ -361,7 +361,7 @@ class DataBank:
 
         if kwarg_update_method != 'overwrite':
             try:
-                rckwargs = _load_config()['data'][data_name][KWARGS]
+                rckwargs = _get_data_kwargs(data_name, _load_config())
             except IndexError:
                 rckwargs = {}
             if kwarg_update_method == 'update':
@@ -453,6 +453,42 @@ def _encode_shortcut(filepath, encoding_level=0):
     return shortcut
 
 
+def _check_location(directory_container):
+    """Decide between str and list operations"""
+
+    if isinstance(directory_container, list):
+        return directory_container[LOCATION]
+    elif isinstance(directory_container, str):
+        return directory_container
+    else:
+        raise ValueError('Directory container type not understood.')
+
+
+def _get_directory(shortcut, config):
+    """Get the directory path with all the crazy required checks."""
+
+    return _check_location(config['directories'][shortcut])
+
+
+def _get_data_location(shortcut, config):
+    """Get the location of a data shortcut."""
+
+    return _check_location(config['data'][shortcut])
+
+
+def _get_data_kwargs(shortcut, config):
+    """Get the kwargs for a data shortcut, if they exist."""
+
+    directory_container = config['data'][shortcut]
+
+    if not isinstance(directory_container, list):
+        return {}
+    elif len(directory_container) < 2:
+        return {}
+    else:
+        return directory_container[KWARGS]
+
+
 def _load_config(filepath=None):
     """Return fyda configuration file ('.fydarc') using YAML."""
 
@@ -530,8 +566,8 @@ def data_path(shortcut, root=None):
     else:
         try:
             pc = _load_config()
-            return os.path.join(pc['directories']['root'][LOCATION],
-                                pc['data'][shortcut][LOCATION])
+            return os.path.join(_get_directory(shortcut, pc),
+                                _get_data_location(shortcut, pc))
         except KeyError:
             raise NoShortcutError(shortcut)
 

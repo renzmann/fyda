@@ -22,7 +22,8 @@ setup(
         'numpy',
         'pandas',
         'configparser',
-        'boto3'
+        'boto3',
+        'pyyaml',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
