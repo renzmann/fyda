@@ -15,15 +15,14 @@ from .errorhandling import NoShortcutError
 
 
 # TODO
-# ?? Option values for behavior with duplicates. (Overwrite/keep/rename)
+# Option values for behavior with duplicates. (Overwrite/keep/rename)
 # Sanity checks for file assignment in .fydarc. Possibly get flexible there.
 # Future idea: some way to search through files/shortcuts; like fuzzy search
 # Integrate cloud-based file loading directly into load(). i.e. point ``root``
 #   to a bucket, and have fyda work its magic from there.
-# Additional keyword arguments in .fydarc
 # Better path handling in .fydarc. e.g. when quotation marks appear in the path
 # Update displayed shortcuts using values from .fydarc
-# Go around and fully deprecate ProjectConfig
+# Automatic recursive directory shortcuts, much like how files work.
 
 # -----------------------------------------------------------------------------
 # Constants
