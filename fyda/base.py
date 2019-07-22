@@ -514,11 +514,15 @@ def _pick_reader(filename, error='raise'):
         return json.load
     if extension in ['.sas7bdat', '.xport']:
         return pd.read_sas
+    if extension in ['.yml', '.yaml']:
+        def open_reader(x):
+            with open(x, 'r') as fileobj:
+                return yaml.safe_load(fileobj)
+        return open_reader
     if extension == '.txt':
         def open_reader(x):
             with open(x, 'r') as fileobj:
                 return fileobj.read()
-
         return open_reader
 
     if error == 'ignore':
