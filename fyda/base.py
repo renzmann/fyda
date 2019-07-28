@@ -127,8 +127,9 @@ class DataBank:
 
         # .fydarc takes priority
         if input_string in pc['data'].keys():
-            return os.path.join(self.root, _get_data_location(input_string,
-                                                              pc))
+            return os.path.abspath(
+                os.path.join(self.root, _get_data_location(
+                    input_string, pc)))
 
         try:  # Second check shortcuts
             filename = self.shortcuts[input_string]
