@@ -16,6 +16,7 @@ setup(
     author='Robert Enzmann',
     author_email='runningwithrobb@gmail.com',
     url='https://github.com/renzmann/fyda',
+    long_description_content_type="text/markdown",
     keywords=['Python', 'Data', 'Interface', 'Data Science', 'python 3'],
     install_requires=[
         'numpy',
