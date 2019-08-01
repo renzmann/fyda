@@ -67,16 +67,15 @@ called ``[data]`` organized as::
 
 This is particularly useful when the original file names are very long 
 and the default shortcut assignment would be cumbersome to use, or when 
-solving duplcate file name issues (more on this below).
+solving duplicate file name issues (more on this below).
 
 
 Using fyda to get file paths
 ----------------------------
 
-When working with data on multiple platforms, it can be a pain to make sure all
-of the references to data locations are consistent. Once the "input_folder" is
-set for fyda, telling the code where to find it is easy. Using the example
-data we added earlier, it would look like this::
+fyda makes it easy to retrieve the absolute path to data files in a
+platform-independent way. Using the example data we added earlier,
+it would look like this::
 
    >>> fyda.data_path('example')
    '/home/username/myproject/input/example.csv'
@@ -170,6 +169,54 @@ uniqueness::
    >>> y_raw = fyda.load('y.pickle')
 
 Note that the ``y`` files are still only separated by file extensions.
+
+
+Static Configuration with .fydarc
+---------------------------------
+
+It almost never happens that our data files have a nice, neat name like
+``X.csv``, but instead have some god-awful collection of names, words, random
+capitalization, a mix of underscores and spaces, dates and versions ... you
+get the idea. Let's say I receive data from a client in the form of
+``the DATA_for-project_v100_20190130.xlsx``.
+
+This would quickly get tiring if we were to try and use it in the shortcut
+system above. Fortunately, fyda has a way to set static shortcuts, that can
+be managed in a single place, called your ``.fydarc``. This is a
+project-specific file, and the path to it can be dynamically set using
+``fyda.options.CONFIG_LOCATION = path/to/my/.fydarc``. The fydarc paradigm uses
+YAML as its markup language, making it very easy for even non-programmers to
+use. To get started with the poorly named file from the client, we need to tell
+fyda two things in the fydarc, namely where the data ``root`` should be
+anchored, and where the data is relative to this root. For now, let's assume
+we have the following structure in the same working directory as earlier::
+
+   .
+   ├── data
+   │  ├── preprocessed
+   │  └── raw
+   │      └── the DATA_for-project_v100_20190130.xlsx
+   └ .fydarc
+
+
+Ultimately, your pipeline will probably do some transformations and data
+cleaning on the raw data and place it in the ``preprocessed`` folder, at
+which point you can name it anything you like, but since this file is from
+the client directly, it's probably best not to rename it for consistency's
+sake. We can, however, make the shortcut to this file with fyda whatever we
+like. In our ``.fydarc``, we simply do the following::
+
+    directories:
+      root: ./data
+
+    data:
+      client: raw/the DATA_for-project_v100_20190130.xlsx
+
+Now when fyda is booted up in python, the shortcut ``"client"`` will be
+available for loading the client data. If in the future the client sends a
+new file called ``the DATA_for-project_v101_20190229.xlsx``, then adjusting
+the code to load this new file instead of the old one is as simple as
+changing the single configuration value in ``.fydarc``.
 
 
 Peeking under the hood: the DataBank
