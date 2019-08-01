@@ -9,7 +9,7 @@ with open('README.md', 'r') as fh:
 setup(
     name='fyda',
     packages=['fyda'],
-    version='0.4.3',
+    version='0.4.4',
     license='MIT',
     description='General data interface for Python 3',
     long_description=long_description,
@@ -17,7 +17,6 @@ setup(
     author='Robert Enzmann',
     author_email='runningwithrobb@gmail.com',
     url='https://github.com/renzmann/fyda',
-    long_description_content_type="text/markdown",
     keywords=['Python', 'Data', 'Interface', 'Data Science', 'python 3'],
     install_requires=[
         'numpy',
